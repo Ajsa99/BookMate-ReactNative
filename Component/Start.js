@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     View,
     Image,
@@ -7,9 +7,26 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Start = ({ navigation }) => {
+
+    const [NickName, setNickName] = useState('');
+
+    useEffect(() => {
+
+        async function fetchData() {
+
+            const nickname = await AsyncStorage.getItem('NickName');
+            setNickName(nickname);
+            console.log('Radi' + NickName)
+        }
+        fetchData();
+
+    }, []);
+
+
     return (
         <View style={styles.container}>
             <View style={styles.imageView}>
@@ -28,7 +45,9 @@ const Start = ({ navigation }) => {
                 </View>
 
                 <TouchableOpacity
-                    onPress={() => navigation.navigate('Login')} // Navigacija na stranicu "Login"
+                    onPress={() => {
+                        !NickName ? navigation.navigate('Login') : navigation.navigate('TabNavigator');
+                    }} // Navigacija na stranicu "Login"
                     style={styles.circle}
                 >
                     <MaterialCommunityIcons name="redo" size={60} color="#fff" />

@@ -1,192 +1,60 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
 import { ScrollView } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TabNavigator } from './TabNavigator';
 import Card from './Card';
+import { Header } from 'react-native-elements';
+import { RefreshControl } from 'react-native';
 
 export default function Home() {
-    const [zanr, setZanr] = useState('Fantazija');
-    const [naziv, setNaziv] = useState('Gospodar Prstenova');
-    const [autor, setAutor] = useState('J.R.R. Tolkien');
-    const [opis, setOpis] = useState('Lorem ipsum dolor sit amet consectetur. In pretium metus nulla lobortis diam urna vel mus et.Sed purus urna ullamcorper.');
+
+    const [data, setData] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchData = () => {
+        axios.get(`https://localhost:7124/api/Post/GetPostsUsers`)
+            .then((response) => {
+                console.log(response.data);
+                setData(response.data.reverse());
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            })
+            .finally(() => {
+                setRefreshing(false);
+            });
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Card />
-            <Card />
-            <Card />
-            <Card />
-
-            {/* <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                    <Image
-                        source={{ uri: 'https://document360.com/wp-content/uploads/2022/01/Ultimate-guide-to-writing-instructions-for-a-user-manual-Document360.png' }}
-                        style={styles.slika}
-                    />
-                    <View style={{ width: '68%' }}>
-                        <Text style={styles.ime}>Ajsa Alibasic</Text>
-                        <Text style={styles.infoLabel}>
-                            <Text style={{ color: 'gray' }}>Žanr: </Text>
-                            <Text style={{ color: 'black' }}>{zanr}</Text>
-                        </Text>
-                    </View>
-                </View>
-                <View style={{ borderBottomColor: '#9F8F8F', borderBottomWidth: 0.5 }} />
-                <View style={styles.cardBody}>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Naziv: </Text>
-                        <Text style={{ color: 'black' }}>{naziv}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Autor: </Text>
-                        <Text style={{ color: 'black' }}>{autor}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Moj dozivljaj: </Text>
-                        <Text style={{ color: 'black' }}>{opis}</Text>
-                    </Text>
-                </View>
-                <View style={styles.bottomLine}>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                    }}>
-                        <MaterialCommunityIcons name="heart" color="#F44336" size={30} />
-                        <MaterialCommunityIcons name="comment" color="#EEBE68" size={30} />
-                    </View>
-                    <View>
-                        <MaterialCommunityIcons name="bookmark" color="black" size={30} />
-                    </View>
-                </View>
-            </View>
-            <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                    <Image
-                        source={{ uri: 'https://document360.com/wp-content/uploads/2022/01/Ultimate-guide-to-writing-instructions-for-a-user-manual-Document360.png' }}
-                        style={styles.slika}
-                    />
-                    <View style={{ width: '68%' }}>
-                        <Text style={styles.ime}>Ajsa Alibasic</Text>
-                        <Text style={styles.infoLabel}>
-                            <Text style={{ color: 'gray' }}>Žanr: </Text>
-                            <Text style={{ color: 'black' }}>{zanr}</Text>
-                        </Text>
-                    </View>
-                </View>
-                <View style={{ borderBottomColor: '#9F8F8F', borderBottomWidth: 0.5 }} />
-                <View style={styles.cardBody}>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Naziv: </Text>
-                        <Text style={{ color: 'black' }}>{naziv}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Autor: </Text>
-                        <Text style={{ color: 'black' }}>{autor}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Moj dozivljaj: </Text>
-                        <Text style={{ color: 'black' }}>{opis}</Text>
-                    </Text>
-                </View>
-                <View style={styles.bottomLine}>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                    }}>
-                        <MaterialCommunityIcons name="heart" color="#F44336" size={30} />
-                        <MaterialCommunityIcons name="comment" color="#EEBE68" size={30} />
-                    </View>
-                    <View>
-                        <MaterialCommunityIcons name="bookmark" color="black" size={30} />
-                    </View>
-                </View>
-            </View>
-            <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                    <Image
-                        source={{ uri: 'https://document360.com/wp-content/uploads/2022/01/Ultimate-guide-to-writing-instructions-for-a-user-manual-Document360.png' }}
-                        style={styles.slika}
-                    />
-                    <View style={{ width: '68%' }}>
-                        <Text style={styles.ime}>Ajsa Alibasic</Text>
-                        <Text style={styles.infoLabel}>
-                            <Text style={{ color: 'gray' }}>Žanr: </Text>
-                            <Text style={{ color: 'black' }}>{zanr}</Text>
-                        </Text>
-                    </View>
-                </View>
-                <View style={{ borderBottomColor: '#9F8F8F', borderBottomWidth: 0.5 }} />
-                <View style={styles.cardBody}>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Naziv: </Text>
-                        <Text style={{ color: 'black' }}>{naziv}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Autor: </Text>
-                        <Text style={{ color: 'black' }}>{autor}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Moj dozivljaj: </Text>
-                        <Text style={{ color: 'black' }}>{opis}</Text>
-                    </Text>
-                </View>
-                <View style={styles.bottomLine}>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                    }}>
-                        <MaterialCommunityIcons name="heart" color="#F44336" size={30} />
-                        <MaterialCommunityIcons name="comment" color="#EEBE68" size={30} />
-                    </View>
-                    <View>
-                        <MaterialCommunityIcons name="bookmark" color="black" size={30} />
-                    </View>
-                </View>
-            </View>
-            <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                    <Image
-                        source={{ uri: 'https://document360.com/wp-content/uploads/2022/01/Ultimate-guide-to-writing-instructions-for-a-user-manual-Document360.png' }}
-                        style={styles.slika}
-                    />
-                    <View style={{ width: '68%' }}>
-                        <Text style={styles.ime}>Ajsa Alibasic</Text>
-                        <Text style={styles.infoLabel}>
-                            <Text style={{ color: 'gray' }}>Žanr: </Text>
-                            <Text style={{ color: 'black' }}>{zanr}</Text>
-                        </Text>
-                    </View>
-                </View>
-                <View style={{ borderBottomColor: '#9F8F8F', borderBottomWidth: 0.5 }} />
-                <View style={styles.cardBody}>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Naziv: </Text>
-                        <Text style={{ color: 'black' }}>{naziv}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Autor: </Text>
-                        <Text style={{ color: 'black' }}>{autor}</Text>
-                    </Text>
-                    <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray' }}>Moj dozivljaj: </Text>
-                        <Text style={{ color: 'black' }}>{opis}</Text>
-                    </Text>
-                </View>
-                <View style={styles.bottomLine}>
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                    }}>
-                        <MaterialCommunityIcons name="heart" color="#F44336" size={30} />
-                        <MaterialCommunityIcons name="comment" color="#EEBE68" size={30} />
-                    </View>
-                    <View>
-                        <MaterialCommunityIcons name="bookmark" color="black" size={30} />
-                    </View>
-                </View>
-            </View> */}
-            {/* <TabNavigator /> */}
+        <ScrollView
+            contentContainerStyle={styles.container}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={() => {
+                        setRefreshing(true);
+                        // Ovde pozovi funkciju za ponovno preuzimanje podataka
+                        fetchData();
+                    }}
+                />
+            }
+        >
+            <Header
+                leftComponent={{ icon: 'search', color: '#333' }}
+                centerComponent={{ text: 'BookMate', style: { color: '#333', fontWeight: 'bold' } }}
+                rightComponent={{ icon: 'chat', color: '#333' }}
+                containerStyle={{ backgroundColor: '#fff' }}
+            />
+            {data.map((post) => (
+                <Card key={post.postId} post={post} />
+            ))}
         </ScrollView >
     );
 }

@@ -5,6 +5,7 @@ import Home from './Home';
 import { StyleSheet, View } from 'react-native';
 import Start from './Start';
 import Profil from './Profil';
+import AddPost from './AddPost';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,18 +24,20 @@ export const TabNavigator = () => {
                             </View>
                         </View>
                     ),
+                    headerShown: false
                 }}
 
             />
+
             <Tab.Screen
-                name="Add"
-                component={Home}
+                name="Add Post"
+                component={AddPost}
                 options={{
                     tabBarLabel: '',
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.iconContainer}>
                             <View style={styles.circle}>
-                                <MaterialCommunityIcons name="book" color="white" size={focused ? 35 : 25} />
+                                <MaterialCommunityIcons name="plus" color="white" size={focused ? 35 : 25} />
                             </View>
                         </View>
                     ),
@@ -42,7 +45,7 @@ export const TabNavigator = () => {
                 }}
             />
 
-            <Tab.Screen
+            {/* <Tab.Screen
                 name="Chat"
                 component={Start}
                 options={{
@@ -56,7 +59,7 @@ export const TabNavigator = () => {
                     ),
                     // headerShown: false
                 }}
-            />
+            /> */}
 
             <Tab.Screen
                 name="ajsa__a"
@@ -70,10 +73,11 @@ export const TabNavigator = () => {
                             </View>
                         </View>
                     ),
+                    headerShown: false
                 }}
             />
 
-            <Tab.Screen
+            {/* <Tab.Screen
                 name="Search"
                 component={Home}
                 options={{
@@ -87,7 +91,7 @@ export const TabNavigator = () => {
                     ),
                     // headerShown: false
                 }}
-            />
+            /> */}
         </Tab.Navigator>
     )
 }

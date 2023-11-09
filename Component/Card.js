@@ -2,12 +2,14 @@ import React, { useState } from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const Card = () => {
+export default function Card({ post }) {
 
-    const [zanr, setZanr] = useState('Fantazija');
-    const [naziv, setNaziv] = useState('Gospodar Prstenova');
-    const [autor, setAutor] = useState('J.R.R. Tolkien');
-    const [opis, setOpis] = useState('Lorem ipsum dolor sit amet consectetur. In pretium metus nulla lobortis diam urna vel mus et.Sed purus urna ullamcorper.');
+    const [NickName, setNickName] = useState(post.nickName);
+
+    const [zanr, setZanr] = useState(post.genre);
+    const [naziv, setNaziv] = useState(post.bookTitle);
+    const [autor, setAutor] = useState(post.author);
+    const [opis, setOpis] = useState(post.experience);
 
     return (
         <View style={styles.card}>
@@ -16,7 +18,7 @@ const Card = () => {
                     source={{ uri: 'https://document360.com/wp-content/uploads/2022/01/Ultimate-guide-to-writing-instructions-for-a-user-manual-Document360.png' }}
                     style={styles.slika}
                 />
-                <Text style={styles.ime}>ajsa__a</Text>
+                <Text style={styles.ime}>{NickName}</Text>
 
                 <View style={{ paddingStart: 15 }}>
                     <View style={styles.infoLabel}>
@@ -62,8 +64,6 @@ const Card = () => {
     )
 }
 
-export default Card;
-
 
 const styles = StyleSheet.create({
     container: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 20,
         margin: 20,
-        borderColor: '#E31F1F',
+        borderColor: '#788B96',
         borderWidth: 1,
         borderRadius: 20,
         elevation: 3,
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
     },
     cardBody: {
         marginBottom: 15,
+        width: '100%'
     },
     cardTitle: {
         fontSize: 18,

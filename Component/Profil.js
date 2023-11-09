@@ -1,20 +1,25 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     View,
     Text,
     StyleSheet,
     Image,
     FlatList,
-    TouchableOpacity,
-    SectionList
+    TouchableOpacity
 } from 'react-native';
+import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Card from './Card';
 import { ScrollView } from 'react-native';
 import { Header } from 'react-native-elements';
-import Home from './Home';
+import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu';
+// import Icon from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MenuProvider } from 'react-native-popup-menu';
+import { RefreshControl } from 'react-native';
 
-const Profil = () => {
+const Profil = ({ navigation }) => {
 
     const dataActivities = [
         { key: 'active', value: '123', name: "book-open" },
@@ -26,7 +31,7 @@ const Profil = () => {
     const activities = ({ item }) => (
         <View style={styles.activityItem}>
             <View style={{ marginRight: 10 }}>
-                <MaterialCommunityIcons name={item.name} color="#EEBE68" size={23} />
+                <MaterialCommunityIcons name={item.name} color="#EEBE68" size={20} />
             </View>
             <Text style={styles.activityValue}>{item.value} </Text>
             <Text style={styles.activityLabel}>{item.key}</Text>
@@ -34,71 +39,195 @@ const Profil = () => {
         </View>
     );
 
+    const [Id, setId] = useState('');
+    const [NickName, setNickname] = useState('');
+    const [FirstName, setFirstName] = useState('');
+    const [LastName, setLastName] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+
+        async function fetchData() {
+
+            const Id = await AsyncStorage.getItem('Id');
+            const nickname = await AsyncStorage.getItem('NickName');
+
+            setId(Id);
+            setNickname(nickname);
+
+
+            axios.get(`https://localhost:7124/api/User/${Id}`)
+                .then((response) => {
+                    setFirstName(response.data.firstName);
+                    setLastName(response.data.lastName)
+
+                })
+
+            axios.get(`https://localhost:7124/api/Post/GetPostIdUser/${Id}`)
+                .then((response) => {
+                    console.log(response.data);
+
+                    // Pretvori u niz ako nije
+                    const postData = Array.isArray(response.data) ? response.data : [response.data];
+
+                    // Loguj response.data pre mapiranja
+                    console.log(postData);
+
+                    const updatedData = postData.map(item => ({
+                        ...item,
+                        nickName: nickname,
+                    }));
+                    setData(updatedData.reverse());
+                    console.log(updatedData);
+
+                })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+
+        fetchData();
+
+    }, []);
+
+    const onRefresh = () => {
+        setRefreshing(true);
+
+        fetchData();
+
+        setRefreshing(false);
+    };
+
+    const removeNickname = async () => {
+        try {
+            await AsyncStorage.removeItem('NickName');
+            console.log('Nadimak obrisan.');
+            navigation.navigate('Login');
+        } catch (error) {
+            console.error('Greška pri brisanju nadimka:', error);
+        }
+    };
+
+    const Following = () => {
+
+        const data = {
+            following: Id,
+            followers: 3
+        };
+
+        axios.post('https://localhost:7124/api/Followover/AddFollowover', data)
+            .then((response) => {
+                console.log("Uspelo je")
+            })
+    }
 
     return (
-        <ScrollView style={styles.container}>
-            <Header
-                placement="left"
-                leftComponent={{ icon: 'menu', color: '#fff' }}
-                centerComponent={{ text: 'MY TITLE', style: { color: '#fff' } }}
-                rightComponent={{ icon: 'home', color: '#fff' }}
-            />
-            <View style={styles.hederView}>
-                <View>
-                    <Image
-                        source={{ uri: 'https://document360.com/wp-content/uploads/2022/01/Ultimate-guide-to-writing-instructions-for-a-user-manual-Document360.png' }}
-                        style={styles.slika}
-                    />
-                </View>
-                <View>
-                    <FlatList
-                        data={dataActivities}
-                        renderItem={activities}
-                    />
-                </View>
-            </View>
+        <MenuProvider>
 
-            <View style={styles.hrLine}></View>
+            <View style={{ flex: 1 }}>
+                <Header
+                    leftComponent={{ text: NickName, style: { color: '#333', fontWeight: 'bold' } }}
+                    rightComponent={
+                        <Menu>
+                            <MenuTrigger>
+                                <Ionicons
+                                    name="menu"
+                                    color="#333"
+                                    size={25}
+                                />
+                            </MenuTrigger>
 
-            <View style={styles.body}>
-                <View style={styles.info}>
-                    <Text style={{ fontSize: 25, color: '#333' }}>Ajsa Alibasic</Text>
-                    <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
-                </View>
-                <TouchableOpacity
-                    onPress={() => { }}
-                    style={styles.buttonfollow}
+                            <MenuOptions>
+                                <MenuOption onSelect={() => console.log('Opcija 1')}>
+                                    <Text>Izmeni profil</Text>
+                                </MenuOption>
+                                <MenuOption onSelect={removeNickname}>
+                                    <Text>Odjavi se</Text>
+                                </MenuOption>
+                            </MenuOptions>
+                        </Menu>
+                    }
+                    containerStyle={{ backgroundColor: '#FBFBFB' }}
+                />
+                <ScrollView
+                    style={styles.container}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                        />
+                    }
                 >
-                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                        <MaterialCommunityIcons name="star-outline" color="white" size={28} />
-                        <Text style={{ color: 'white', fontSize: '17' }}>Zaprati</Text>
+
+                    <View style={styles.hederView}>
+                        <View>
+                            <Image
+                                source={{ uri: 'https://document360.com/wp-content/uploads/2022/01/Ultimate-guide-to-writing-instructions-for-a-user-manual-Document360.png' }}
+                                style={styles.slika}
+                            />
+                        </View>
+                        <View>
+                            <FlatList
+                                data={dataActivities}
+                                renderItem={activities}
+                            />
+                        </View>
                     </View>
 
-                </TouchableOpacity>
+                    <View style={styles.hrLine}></View>
+
+                    <View style={styles.body}>
+                        <View style={styles.info}>
+                            <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
+                            <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
+                        </View>
+                        <TouchableOpacity
+                            onPress={Following}
+                            style={styles.buttonfollow}
+                        >
+                            <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                <MaterialCommunityIcons name="star-outline" color="white" size={22} />
+                                <Text style={{ color: 'white', fontSize: '15' }}>Zaprati</Text>
+                            </View>
+
+                        </TouchableOpacity>
+                    </View>
+
+
+
+                    <View style={{ alignItems: 'center' }}>
+                        <View style={styles.menuList}>
+                            <TouchableOpacity
+                                onPress={() => { }}
+                                style={styles.cell}
+                            >
+                                <MaterialCommunityIcons name="book-open" color="#FAFAFA" size={23} />
+
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => { }}
+                                style={styles.cell}>
+                                <MaterialCommunityIcons name="book" color="#FAFAFA" size={23} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => { }}
+                                style={styles.cell1} >
+                                <MaterialCommunityIcons name="bookmark" color="#FAFAFA" size={23} />
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.viewList}>
+                            {Array.isArray(data) && data.map((post) => (
+                                <Card key={post.id} post={post} />
+                            ))}
+                        </View>
+                    </View>
+                </ScrollView>
             </View>
+        </MenuProvider>
 
-
-            <View style={{ alignItems: 'center' }}>
-                <View style={styles.menuList}>
-                    <View style={styles.cell}>
-                        <MaterialCommunityIcons name="book-open" color="#FAFAFA" size={23} />
-                    </View>
-                    <View style={styles.cell}>
-                        <MaterialCommunityIcons name="book" color="#FAFAFA" size={23} />
-                    </View>
-                    <View style={styles.cell1} >
-                        <MaterialCommunityIcons name="bookmark" color="#FAFAFA" size={23} />
-                    </View>
-                </View>
-                <View style={styles.viewList}>
-                    <Card />
-                    <Card />
-                    <Card />
-                </View>
-            </View>
-
-
-        </ScrollView>
     )
 }
 
@@ -128,12 +257,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     activityLabel: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: 'bold',
         color: '#EEBE68'
     },
     activityValue: {
-        fontSize: 20,
+        fontSize: 16,
         color: '#EEBE68'
     },
     hrLine: {

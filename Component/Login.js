@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 import {
     SafeAreaView,
     View,
@@ -7,6 +8,8 @@ import {
     TouchableOpacity,
     StyleSheet,
 } from 'react-native';
+import * as Yup from 'yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,7 +17,62 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CustomButton from './CustomButton';
 import InputField from './InputField';
 
+
 const Login = ({ navigation }) => {
+
+    const [NickName, setNickName] = useState('');
+    const [Password, setPassword] = useState('');
+
+    const [errors, setErrors] = useState({});
+
+    const schema = Yup.object().shape({
+        NickName: Yup.string().required('Nick Name is required'),
+        Password: Yup.string().required('Password is required'),
+    });
+
+    const onSubmit = () => {
+
+
+        schema.validate(
+            {
+                NickName,
+                Password,
+            },
+            { abortEarly: false }
+        )
+            .then(() => {
+                // Ukoliko nema grešaka, možete izvršiti registraciju 
+
+                const data = {
+                    nickName: NickName,
+                    password: Password,
+                };
+
+                axios
+                    .post('https://localhost:7124/login', data)
+                    .then((response) => {
+                        console.log(response.data);
+                        // Sačuvajte podatke u AsyncStorage
+                        AsyncStorage.setItem('Id', response.data.id);
+                        AsyncStorage.setItem('NickName', response.data.nickName);
+                        AsyncStorage.setItem('userToken', response.data.token);
+
+                        navigation.navigate('TabNavigator');
+                    }).catch((error) => {
+                        alert('Wrong Nick Name or Password!')
+                    });
+
+            }).catch((validationErrors) => {
+                // Ukoliko postoje greške, postavite ih u stanje i prikažite korisniku
+                const errorObj = {};
+                validationErrors.inner.forEach((err) => {
+                    errorObj[err.path] = err.message;
+                });
+                setErrors(errorObj);
+            });
+
+    }
+
     return (
         <SafeAreaView style={{ flex: 1, justifyContent: 'center', backgroundColor: '#fff' }}>
             <View style={{ paddingHorizontal: 25 }}>
@@ -42,6 +100,9 @@ const Login = ({ navigation }) => {
                             style={{ marginRight: 5 }}
                         />
                     }
+                    value={NickName}
+                    onChangeText={(text) => setNickName(text)}
+                    errorMessage={errors.NickName}
                 />
 
                 <InputField
@@ -54,13 +115,17 @@ const Login = ({ navigation }) => {
                             style={{ marginRight: 5 }}
                         />
                     }
+                    value={Password}
                     inputType="password"
+                    onChangeText={(text) => setPassword(text)}
                     fieldButtonLabel={"Forgot?"}
                     fieldButtonFunction={() => { }}
+                    errorMessage={errors.Password}
                 />
 
 
-                <CustomButton label={"Login"} onPress={() => { navigation.navigate('TabNavigator') }} />
+                {/* <CustomButton label={"Login"} onPress={() => { navigation.navigate('TabNavigator') }} /> */}
+                <CustomButton label={"Login"} onPress={onSubmit} />
 
                 <View
                     style={{
