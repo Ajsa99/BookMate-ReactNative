@@ -56,8 +56,9 @@ const Login = ({ navigation }) => {
                         AsyncStorage.setItem('Id', response.data.id);
                         AsyncStorage.setItem('NickName', response.data.nickName);
                         AsyncStorage.setItem('userToken', response.data.token);
+                        AsyncStorage.setItem('Image', response.data.image);
 
-                        navigation.navigate('TabNavigator');
+                        navigation.replace('TabNavigator');
                     }).catch((error) => {
                         alert('Wrong Nick Name or Password!')
                     });

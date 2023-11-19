@@ -2,14 +2,19 @@ import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Home from './Home';
-import { StyleSheet, View } from 'react-native';
-import Start from './Start';
+import { StyleSheet, View, Text } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Profil from './Profil';
 import AddPost from './AddPost';
+import Profil1 from './Profil1';
+import Search from './Search';
+import Chat from './Chat';
+import FollowingList from './FollowingList';
 
 const Tab = createBottomTabNavigator();
 
-export const TabNavigator = () => {
+export const TabNavigator = ({ navigation }) => {
+
     return (
         <Tab.Navigator>
             <Tab.Screen
@@ -24,9 +29,8 @@ export const TabNavigator = () => {
                             </View>
                         </View>
                     ),
-                    headerShown: false
+                    headerShown: false,
                 }}
-
             />
 
             <Tab.Screen
@@ -41,28 +45,11 @@ export const TabNavigator = () => {
                             </View>
                         </View>
                     ),
-                    // headerShown: false // Možete dodati ovo da se takođe sakrije zaglavlje
                 }}
             />
 
-            {/* <Tab.Screen
-                name="Chat"
-                component={Start}
-                options={{
-                    tabBarLabel: '',
-                    tabBarIcon: ({ focused }) => (
-                        <View style={styles.iconContainer}>
-                            <View style={styles.circle}>
-                                <MaterialCommunityIcons name="forum" color="white" size={focused ? 35 : 25} />
-                            </View>
-                        </View>
-                    ),
-                    // headerShown: false
-                }}
-            /> */}
-
             <Tab.Screen
-                name="ajsa__a"
+                name="Profil"
                 component={Profil}
                 options={{
                     tabBarLabel: '',
@@ -76,23 +63,66 @@ export const TabNavigator = () => {
                     headerShown: false
                 }}
             />
-
-            {/* <Tab.Screen
-                name="Search"
-                component={Home}
+            <Tab.Screen
+                name="Profil1"
+                component={Profil1}
                 options={{
-                    tabBarLabel: '',
-                    tabBarIcon: ({ focused }) => (
-                        <View style={styles.iconContainer}>
-                            <View style={styles.circle}>
-                                <MaterialCommunityIcons name="magnify" color="white" size={focused ? 35 : 25} />
-                            </View>
-                        </View>
+                    headerLeft: () => (
+                        <Ionicons name="ios-arrow-back"
+                            size={25}
+                            color="#333"
+                            style={{ paddingLeft: 5 }}
+                            onPress={() => navigation.navigate('Search')} />
                     ),
-                    // headerShown: false
+                    headerStyle: {
+                        backgroundColor: '#FBFBFB'
+                    },
+                    tabBarButton: () => null
                 }}
-            /> */}
-        </Tab.Navigator>
+            />
+            < Tab.Screen
+                name="Search"
+                component={Search}
+                options={{
+                    headerLeft: () => (
+                        <Ionicons name="ios-arrow-back"
+                            size={25}
+                            color="#333"
+                            style={{ paddingLeft: 5 }}
+                            onPress={() => navigation.navigate('BookMate')} />
+                    ),
+                    tabBarButton: () => null
+                }}
+            />
+            < Tab.Screen
+                name="Chat"
+                component={Chat}
+                options={{
+                    headerLeft: () => (
+                        <Ionicons name="ios-arrow-back"
+                            size={25}
+                            color="#333"
+                            style={{ paddingLeft: 5 }}
+                            onPress={() => navigation.navigate('BookMate')} />
+                    ),
+                    tabBarButton: () => null
+                }}
+            />
+            < Tab.Screen
+                name="Following"
+                component={FollowingList}
+                options={{
+                    headerLeft: () => (
+                        <Ionicons name="ios-arrow-back"
+                            size={25}
+                            color="#333"
+                            style={{ paddingLeft: 5 }}
+                            onPress={() => navigation.navigate('Profil')} />
+                    ),
+                    tabBarButton: () => null
+                }}
+            />
+        </Tab.Navigator >
     )
 }
 

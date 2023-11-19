@@ -1,36 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
-import { ScrollView } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { TabNavigator } from './TabNavigator';
+import { StyleSheet, ScrollView } from 'react-native';
 import Card from './Card';
 import { Header } from 'react-native-elements';
 import { RefreshControl } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Home() {
+const Home = ({ navigation }) => {
 
+    const [Id, setId] = useState('');
     const [data, setData] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
 
-    const fetchData = () => {
-        axios.get(`https://localhost:7124/api/Post/GetPostsUsers`)
-            .then((response) => {
-                console.log(response.data);
-                setData(response.data.reverse());
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            })
-            .finally(() => {
-                setRefreshing(false);
-            });
-    };
-
     useEffect(() => {
+
+        const fetchData = async () => {
+            const IdUser = await AsyncStorage.getItem('Id');
+
+            setId(IdUser);
+
+            axios.get(`https://localhost:7124/api/Post/GetPostsUsersFollowover/${IdUser}`)
+                .then((response) => {
+                    setData(response.data);
+                    console.log(response.data)
+                })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                })
+                .finally(() => {
+                    setRefreshing(false);
+                });
+
+        }
+
         fetchData();
     }, []);
-
 
     return (
         <ScrollView
@@ -40,24 +44,33 @@ export default function Home() {
                     refreshing={refreshing}
                     onRefresh={() => {
                         setRefreshing(true);
-                        // Ovde pozovi funkciju za ponovno preuzimanje podataka
+
                         fetchData();
                     }}
                 />
             }
         >
             <Header
-                leftComponent={{ icon: 'search', color: '#333' }}
+                leftComponent={
+                    {
+                        icon: 'search', color: '#333',
+                        onPress: () => navigation.navigate('Search'),
+                    }}
                 centerComponent={{ text: 'BookMate', style: { color: '#333', fontWeight: 'bold' } }}
-                rightComponent={{ icon: 'chat', color: '#333' }}
+                rightComponent={{
+                    icon: 'chat', color: '#333',
+                    onPress: () => navigation.navigate('Chat')
+                }}
                 containerStyle={{ backgroundColor: '#fff' }}
             />
             {data.map((post) => (
-                <Card key={post.postId} post={post} />
+                <Card key={post.postId} post={post} iduser={Id} />
             ))}
         </ScrollView >
     );
 }
+
+export default Home;
 
 const styles = StyleSheet.create({
     container: {

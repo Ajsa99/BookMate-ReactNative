@@ -7,18 +7,22 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  CheckBox,
   Alert
 } from 'react-native';
 import * as Yup from 'yup';
 import InputField from './InputField';
-
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { launchImageLibraryAsync } from 'expo-image-picker';
 import CustomButton from './CustomButton';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { app } from '../config';
+import { v4 as uuidv4 } from 'uuid';
 
 const Register = ({ navigation }) => {
 
+  const storage = getStorage(app);
 
   const [FirstName, setFirstName] = useState('');
   const [LastName, setLastName] = useState('');
@@ -28,6 +32,23 @@ const Register = ({ navigation }) => {
   const [PPassword, setPPassword] = useState('');
 
   const [errors, setErrors] = useState({});
+
+  const [profileImage, setProfileImage] = useState('');
+  const [useDefaultImage, setUseDefaultImage] = useState(false);
+
+  const pickImage = async () => {
+    let result = await launchImageLibraryAsync({
+      mediaTypes: 'Images',
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.cancelled) {
+      setProfileImage(result.uri);
+      setUseDefaultImage(false);
+    }
+  };
 
 
   const schema = Yup.object().shape({
@@ -48,30 +69,69 @@ const Register = ({ navigation }) => {
       .required('Password is required')
       .min(3, 'Password must be at least 3 characters'),
     PPassword: Yup.string().oneOf([Yup.ref('Password'), null], 'Passwords must match'),
+    profileImage: Yup.string().when('useDefaultImage', {
+      is: false,
+      then: Yup.string().required('Profile Image is required')
+    })
   });
 
+  const uploadImageToFirebase = async (uri) => {
+    try {
+      // Generiši jedinstveni naziv slike koristeći UUID
+      const uniqueImageName = uuidv4();
 
-  const onSubmit = () => {
+      // Kreiraj referencu ka lokaciji u Firebase Storage-u
+      const storageRef = ref(storage, 'BookMate/' + uniqueImageName);
 
-    schema.validate(
-      {
-        FirstName,
-        LastName,
-        NickName,
-        Email,
-        Password,
-        PPassword,
-      },
-      { abortEarly: false }
-    )
-      .then(() => {
-        // Ukoliko nema grešaka, možete izvršiti registraciju
+      // Preuzmi sliku iz lokalnog fajl sistema
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      // Otpremi sliku na Firebase Storage
+      await uploadBytes(storageRef, blob);
+
+      // Dobavi URL za preuzimanje otpremljene slike
+      const downloadURL = await getDownloadURL(storageRef);
+
+      return downloadURL;
+    } catch (error) {
+      console.error('Greška prilikom otpremanja slike na Firebase Storage:', error);
+      throw error;
+    }
+  };
+
+
+  const onSubmit = async () => {
+    try {
+      // Validacija podataka forme
+      await schema.validate(
+        {
+          FirstName,
+          LastName,
+          NickName,
+          Email,
+          Password,
+          PPassword,
+          profileImage: useDefaultImage ? '' : profileImage || ''
+        },
+        { abortEarly: false }
+      ).then(async () => {
+
+        let imageUri = '';
+
+        if (!useDefaultImage && profileImage) {
+          imageUri = await uploadImageToFirebase(profileImage);
+        }
+
+        // Nastavite sa registracijom korisnika koristeći `imageUri`
+
         const data = {
           firstName: FirstName,
           lastName: LastName,
           nickName: NickName,
           email: Email,
           password: Password,
+          image: imageUri,
         };
 
         console.log(data);
@@ -88,15 +148,20 @@ const Register = ({ navigation }) => {
           });
 
       }).catch((validationErrors) => {
-        // Ukoliko postoje greške, postavite ih u stanje i prikažite korisniku
+        // Obrada grešaka prilikom validacije
         const errorObj = {};
         validationErrors.inner.forEach((err) => {
           errorObj[err.path] = err.message;
         });
         setErrors(errorObj);
       });
-
+    } catch (error) {
+      // Obrada opšte greške
+      console.error('Greška:', error);
+    }
   };
+
+
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center', backgroundColor: '#fff' }}>
@@ -125,8 +190,32 @@ const Register = ({ navigation }) => {
           Register
         </Text>
 
+        <View style={{ alignItems: 'center' }}>
+          {useDefaultImage ? (
+            < View
+              style={{
+                width: 160,
+                height: 160,
+                borderRadius: 80,
+                margin: 10,
+                backgroundColor: '#EEBE68',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+              <Ionicons name="person-outline" size={90} color="#666" />
+            </View>
+          ) : profileImage ? (
+            <Image style={{
+              width: 160,
+              height: 160,
+              borderRadius: 80,
+              margin: 10,
+            }} source={{ uri: profileImage }} />
 
-        <InputField
+          ) : null}
+        </View>
+
+        < InputField
           label={'First Name'}
           icon={
             <Ionicons
@@ -219,6 +308,24 @@ const Register = ({ navigation }) => {
           errorMessage={errors.PPassword}
         />
 
+        <TouchableOpacity onPress={pickImage} style={{ alignItems: 'center', flexDirection: 'row' }}>
+          <View style={{ alignItems: 'start', marginBottom: 15 }} >
+            <Ionicons name="ios-camera" size={40} color="#666" />
+          </View>
+          <Text style={{ color: 'red' }}>{errors.profileImage}</Text>
+        </TouchableOpacity>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
+          <CheckBox
+            value={useDefaultImage}
+            onValueChange={(newValue) => {
+              setUseDefaultImage(newValue);
+              setProfileImage(null); // Brisati profilnu sliku kada se prebaci na podrazumevanu
+            }}
+          />
+          <Text>Ne želim profilnu sliku</Text>
+        </View>
+
         <CustomButton label={'Register'} onPress={onSubmit} />
 
         <View
@@ -233,7 +340,7 @@ const Register = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 };
 

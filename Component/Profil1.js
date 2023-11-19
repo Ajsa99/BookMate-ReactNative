@@ -11,104 +11,20 @@ import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Card from './Card';
 import { ScrollView } from 'react-native';
-import { Header } from 'react-native-elements';
-import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MenuProvider } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Profil = ({ navigation }) => {
+const Profil1 = ({ navigation, route }) => {
 
+    const { item } = route.params;
 
-    const [dataActivities, setDataActivities] = useState([]);
-
-    const [id, setId] = useState('');
-    const [NickName, setNickname] = useState('');
-    const [FirstName, setFirstName] = useState('');
-    const [LastName, setLastName] = useState('');
-    const [image, setImage] = useState('');
-    const [refreshing, setRefreshing] = useState(false);
-
-    const [data, setData] = useState([]);
-    const [followersCount, setFollowersCount] = useState('');
-    const [followingCount, setFollowingCount] = useState('');
-    const [postCount, setPostCount] = useState('');
-
-
-    useEffect(() => {
-
-
-        async function fetchData() {
-
-            setDataActivities([
-                { key: 'active', value: postCount, name: "book-open", route: 'Profil' },
-                { key: 'following', value: followingCount, name: "star", route: 'Following' },
-                { key: 'followers', value: followersCount, name: "star-outline", route: 'Chat' },
-            ]);
-
-            const Id = await AsyncStorage.getItem('Id');
-            const nickname = await AsyncStorage.getItem('NickName');
-
-            setId(Id);
-            setNickname(nickname);
-
-
-            axios.get(`https://localhost:7124/api/User/${Id}`)
-                .then((response) => {
-                    setFirstName(response.data.firstName);
-                    setLastName(response.data.lastName)
-                    setImage(response.data.image);
-
-
-                    axios.get(`https://localhost:7124/api/Post/GetPostIdUser/${Id}`)
-                        .then((res) => {
-
-                            // Pretvori u niz ako nije
-                            const postData = Array.isArray(res.data) ? res.data : [res.data];
-
-                            const updatedData = postData.map(item => ({
-                                ...item,
-                                postId: item.id,
-                                userId: item.idUser,
-                                nickName: nickname,
-                                image: response.data.image,
-                            }));
-                            setData(updatedData);
-                            console.log(updatedData);
-                            setPostCount(res.data.length);
-
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching data:', error);
-                        });
-
-                    //korisnici koji me prate
-                    axios.get(`https://localhost:7124/api/Followover/GetFollowersCountAsync/${Id}`)
-                        .then((res) => {
-                            setFollowersCount(res.data)
-                            console.log(res.data)
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching data:', error);
-                        });
-
-                    //korisnici koje pratim
-                    axios.get(`https://localhost:7124/api/Followover/GetFollowing/${Id}`)
-                        .then((res) => {
-                            setFollowingCount(res.data.length)
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching data:', error);
-                        });
-                })
-        }
-
-        fetchData();
-
-    }, [postCount, followingCount, followersCount]);
-
-
+    const dataActivities = [
+        { key: 'active', value: '123', name: "book-open" },
+        { key: 'following', value: '789', name: "star" },
+        { key: 'followers', value: '987', name: "star-outline" },
+    ];
 
     const activities = ({ item }) => (
         <View style={styles.activityItem}>
@@ -116,55 +32,155 @@ const Profil = ({ navigation }) => {
                 <MaterialCommunityIcons name={item.name} color="#EEBE68" size={20} />
             </View>
             <Text style={styles.activityValue}>{item.value} </Text>
-            <TouchableOpacity onPress={() => navigation.navigate(item.route, { id })}>
-                <Text style={styles.activityLabel}>{item.key}</Text>
-            </TouchableOpacity>
+            <Text style={styles.activityLabel}>{item.key}</Text>
+
         </View>
     );
 
+    const [Id, setId] = useState(item.id);
+    const [NickName, setNickname] = useState(item.nickName);
+    const [FirstName, setFirstName] = useState('');
+    const [LastName, setLastName] = useState('');
+    const [image, setImage] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+
+    const [data, setData] = useState([]);
+
+    const [IdLoggedInUser, setIdLoggedInUser] = useState(0);
+    const [followers, setFollowers] = useState(false);
+
+    useEffect(() => {
+
+        async function fetchData() {
+
+            navigation.setOptions({ headerTitle: item.nickName });
+
+            const IdUser = await AsyncStorage.getItem('Id');
+
+            setIdLoggedInUser(IdUser)
+            console.log(IdLoggedInUser);
+
+            axios.get(`https://localhost:7124/api/User/${Id}`)
+                .then((response) => {
+                    setFirstName(response.data.firstName);
+                    setLastName(response.data.lastName)
+                    setImage(response.data.image)
+
+                    console.log(response.data)
+                    axios.get(`https://localhost:7124/api/Post/GetPostIdUser/${Id}`)
+                        .then((res) => {
+
+                            // Pretvori u niz ako nije
+                            const postData = Array.isArray(res.data) ? res.data : [res.data];
+
+                            // Loguj response.data pre mapiranja
+                            console.log(postData);
+
+                            const updatedData = postData.map(item => ({
+                                ...item,
+                                postId: item.id,
+                                userId: item.idUser,
+                                nickName: NickName,
+                                image: response.data.image,
+                            }));
+                            setData(updatedData);
+                            console.log(updatedData);
+
+                        })
+                })
+
+
+
+            // axios.get(`https://localhost:7124/api/Followover/GetFollowers/${IdUser}`)
+            //     .then((response) => {
+            //         if (response) {
+            //             console.log(response.data);
+
+            //             // Prolazak kroz sve brojeve pratilaca i prikazivanje svakog od njih
+            //             response.data.forEach(user => {
+            //                 console.log(`Follower: ${user.followers}`);
+            //                 if (user.followers == Id) {
+            //                     console.log(`Follower: ${user.followers} ${Id}`);
+            //                 }
+            //             });
+            //         }
+            //     })
+
+            axios.get(`https://localhost:7124/api/Followover/IsFollowing/${IdUser}/${Id}`)
+                .then((response) => {
+                    console.log(response.data);
+                    setFollowers(response.data);
+                })
+
+
+        }
+
+        fetchData();
+
+
+    }, []);
+
     const onRefresh = () => {
         setRefreshing(true);
+
         fetchData();
+
         setRefreshing(false);
     };
 
-    const removeNickname = async () => {
-        try {
-            await AsyncStorage.removeItem('NickName');
-            console.log('Nadimak obrisan.');
-            navigation.replace('Login');
-        } catch (error) {
-            console.error('Greška pri brisanju nadimka:', error);
-        }
-    };
+
+    const Following = () => {
+
+        const data = {
+            followers: IdLoggedInUser,
+            following: Id,
+        };
+
+        axios.post('https://localhost:7124/api/Followover/AddFollowover', data)
+            .then((response) => {
+                console.log(response.data);
+                setFollowers(true)
+            })
+    }
+
+    const UnFollowing = () => {
+
+        // Alert.alert(
+        //     'Potvrda',
+        //     'Da li ste sigurni da želite da otpratite korisnika?',
+        //     [
+        //         {
+        //             text: 'Ne',
+        //             onPress: () => console.log('Otpracivanje otkazano'),
+        //             style: 'cancel',
+        //         },
+        //         {
+        //             text: 'Da',
+        //             onPress: () => {
+        //                 console.log(IdLoggedInUser);
+        //                 console.log(Id);
+
+        //                 // Pozovi Axios kada korisnik pritisne "Da" u Alert-u
+        //                 axios.delete(`https://localhost:7124/api/Followover/Unfollow/${IdLoggedInUser}/${Id}`)
+        //                     .then((response) => {
+        //                         console.log(response.data);
+        //                         setFollowers(false);
+        //                     });
+        //             },
+        //         },
+        //     ]
+        // );
+
+        axios.delete(`https://localhost:7124/api/Followover/Unfollow/${IdLoggedInUser}/${Id}`)
+            .then((response) => {
+                console.log(response.data);
+                setFollowers(false)
+            })
+    }
 
     return (
         <MenuProvider>
             <View style={{ flex: 1 }}>
-                <Header
-                    leftComponent={{ text: NickName, style: { color: '#333', fontWeight: 'bold' } }}
-                    rightComponent={
-                        <Menu>
-                            <MenuTrigger>
-                                <Ionicons
-                                    name="menu"
-                                    color="#333"
-                                    size={25}
-                                />
-                            </MenuTrigger>
-
-                            <MenuOptions>
-                                <MenuOption onSelect={() => console.log('Opcija 1')}>
-                                    <Text>Izmeni profil</Text>
-                                </MenuOption>
-                                <MenuOption onSelect={removeNickname}>
-                                    <Text>Odjavi se</Text>
-                                </MenuOption>
-                            </MenuOptions>
-                        </Menu>
-                    }
-                    containerStyle={{ backgroundColor: '#FBFBFB' }}
-                />
                 <ScrollView
                     style={styles.container}
                     refreshControl={
@@ -174,21 +190,20 @@ const Profil = ({ navigation }) => {
                         />
                     }
                 >
-
                     <View style={styles.hederView}>
-                        {image ? (<View>
-                            <Image
-                                source={{ uri: image }}
-                                style={styles.slika}
-                            />
-                        </View>
-                        ) : (
-                            < View
-                                style={styles.icon}>
-                                <Ionicons name="person-outline" size={90} color="#666" />
-                            </View>
-                        )}
+                        <View>
+                            {image ? (
+                                <Image
+                                    source={{ uri: image }}
+                                    style={styles.slika} />
 
+                            ) : (
+                                <View
+                                    style={styles.icon}>
+                                    <Ionicons name="person-outline" size={90} color="#666" />
+                                </View>
+                            )}
+                        </View>
                         <View>
                             <FlatList
                                 data={dataActivities}
@@ -199,12 +214,38 @@ const Profil = ({ navigation }) => {
 
                     <View style={styles.hrLine}></View>
 
+
                     <View style={styles.body}>
                         <View style={styles.info}>
                             <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
                             <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
                         </View>
+                        {followers == false ? (
+                            <TouchableOpacity
+                                onPress={Following}
+                                style={styles.buttonfollow}
+                            >
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <MaterialCommunityIcons name="star-outline" color="white" size={22} />
+                                    <Text style={{ color: 'white', fontSize: '15' }}>Zaprati</Text>
+                                </View>
+
+                            </TouchableOpacity>
+                        ) : followers == true ? (
+                            <TouchableOpacity
+                                onPress={UnFollowing}
+                                style={styles.buttonfollow1}
+                            >
+                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                    <MaterialCommunityIcons name="star" color="#0060DB" size={22} />
+                                    <Text style={{ color: '#0060DB', fontSize: '15' }}>Pratim</Text>
+                                </View>
+
+                            </TouchableOpacity>
+                        ) : (<></>)}
                     </View>
+
+
 
                     <View style={{ alignItems: 'center' }}>
                         <View style={styles.menuList}>
@@ -227,19 +268,18 @@ const Profil = ({ navigation }) => {
                             </TouchableOpacity>
                         </View>
                         <View style={styles.viewList}>
-                            {data.map((post) => (
-                                <Card key={post.id} post={post} iduser={id} />
+                            {Array.isArray(data) && data.map((post) => (
+                                <Card key={post.id} post={post} iduser={IdLoggedInUser} />
                             ))}
                         </View>
                     </View>
                 </ScrollView>
             </View >
         </MenuProvider >
-
     )
 }
 
-export default Profil;
+export default Profil1;
 
 const styles = StyleSheet.create({
     container: {
@@ -291,13 +331,12 @@ const styles = StyleSheet.create({
     },
     body: {
         width: '100%',
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'space-around',
+        flexDirection: 'row',
         marginTop: 10,
     },
     info: {
-        width: '82%',
-        flexDirection: 'column',
         alignItems: 'flex-start',
     },
     buttonfollow: {
@@ -307,6 +346,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#0060DB',
         paddingVertical: 10,
         borderRadius: 30,
+    },
+    buttonfollow1: {
+        width: 120,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        paddingVertical: 10,
+        borderRadius: 30,
+        borderWidth: 1,
+        borderColor: '#0060DB'
     },
     menuList: {
         width: '96%',

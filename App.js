@@ -5,8 +5,9 @@ import { TabNavigator } from './Component/TabNavigator';
 import Start from './Component/Start';
 import Login from './Component/Login';
 import Register from './Component/Register';
-import Home from './Component/Home';
-import Profil from './Component/Profil';
+import Search from './Component/Search';
+import Chat from './Component/Chat';
+import Profil1 from './Component/Profil1';
 
 const Stack = createStackNavigator();
 
