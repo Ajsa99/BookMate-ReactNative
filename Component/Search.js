@@ -91,7 +91,8 @@ const Search = ({ navigation }) => {
                     <>
                         {searchType === 'user' ? (
                             <TouchableOpacity
-                                onPress={() => navigation.navigate('Profil1', { item })}
+                                onPress={() => navigation.replace('TabNavigator', { screen: 'Profil1', params: { id: item.id, screen: 'Search' } })}
+
                                 keyExtractor={(item) => item.id.toString()}
                                 style={[styles.resultItem, index % 2 === 1 && styles.evenResultItem]}>
                                 <View style={styles.resultContainer}>

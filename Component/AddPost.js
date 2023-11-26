@@ -72,7 +72,7 @@ const AddPost = ({ navigation }) => {
                     .then((response) => {
                         if (response) {
                             console.log(response.data);
-                            navigation.navigate('BookMate');
+                            navigation.replace('TabNavigator', { screen: 'BookMate' })
                         }
                     })
 

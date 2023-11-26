@@ -8,8 +8,10 @@ import Profil from './Profil';
 import AddPost from './AddPost';
 import Profil1 from './Profil1';
 import Search from './Search';
-import Chat from './Chat';
-import FollowingList from './FollowingList';
+import FollowoverList from './FollowoverList';
+import LikedList from './LikedList';
+import Post from './Post';
+import Notifications from './Notifications';
 
 const Tab = createBottomTabNavigator();
 
@@ -25,7 +27,7 @@ export const TabNavigator = ({ navigation }) => {
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.iconContainer}>
                             <View style={styles.circle}>
-                                <MaterialCommunityIcons name="book-open" color="white" size={focused ? 35 : 25} />
+                                <MaterialCommunityIcons name="book-open-page-variant" color="white" size={focused ? 35 : 25} />
                             </View>
                         </View>
                     ),
@@ -41,7 +43,7 @@ export const TabNavigator = ({ navigation }) => {
                     tabBarIcon: ({ focused }) => (
                         <View style={styles.iconContainer}>
                             <View style={styles.circle}>
-                                <MaterialCommunityIcons name="plus" color="white" size={focused ? 35 : 25} />
+                                <MaterialCommunityIcons name="book-plus" color="white" size={focused ? 35 : 25} />
                             </View>
                         </View>
                     ),
@@ -67,16 +69,7 @@ export const TabNavigator = ({ navigation }) => {
                 name="Profil1"
                 component={Profil1}
                 options={{
-                    headerLeft: () => (
-                        <Ionicons name="ios-arrow-back"
-                            size={25}
-                            color="#333"
-                            style={{ paddingLeft: 5 }}
-                            onPress={() => navigation.navigate('Search')} />
-                    ),
-                    headerStyle: {
-                        backgroundColor: '#FBFBFB'
-                    },
+                    headerShown: false,
                     tabBarButton: () => null
                 }}
             />
@@ -89,36 +82,55 @@ export const TabNavigator = ({ navigation }) => {
                             size={25}
                             color="#333"
                             style={{ paddingLeft: 5 }}
-                            onPress={() => navigation.navigate('BookMate')} />
+                            onPress={() => navigation.replace('TabNavigator', { screen: 'BookMate' })}
+                        />
                     ),
                     tabBarButton: () => null
                 }}
             />
             < Tab.Screen
-                name="Chat"
-                component={Chat}
+                name="Notifications"
+                component={Notifications}
                 options={{
                     headerLeft: () => (
                         <Ionicons name="ios-arrow-back"
                             size={25}
                             color="#333"
                             style={{ paddingLeft: 5 }}
-                            onPress={() => navigation.navigate('BookMate')} />
+                            onPress={() => navigation.replace('TabNavigator', { screen: 'BookMate' })} />
                     ),
                     tabBarButton: () => null
                 }}
             />
-            < Tab.Screen
-                name="Following"
-                component={FollowingList}
+            <Tab.Screen
+                name="Followover"
+                component={FollowoverList}
                 options={{
                     headerLeft: () => (
                         <Ionicons name="ios-arrow-back"
                             size={25}
                             color="#333"
                             style={{ paddingLeft: 5 }}
-                            onPress={() => navigation.navigate('Profil')} />
+                            onPress={() => navigation.replace('TabNavigator', { screen: 'Profil' })}
+                        />
                     ),
+                    headerShown: false,
+                    tabBarButton: () => null
+                }}
+            />
+            <Tab.Screen
+                name="LikedList"
+                component={LikedList}
+                options={{
+                    headerShown: false,
+                    tabBarButton: () => null
+                }}
+            />
+            <Tab.Screen
+                name="Post"
+                component={Post}
+                options={{
+                    headerShown: false,
                     tabBarButton: () => null
                 }}
             />

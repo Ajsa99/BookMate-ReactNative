@@ -20,7 +20,6 @@ const Start = ({ navigation }) => {
 
             const nickname = await AsyncStorage.getItem('NickName');
             setNickName(nickname);
-            console.log('Radi' + NickName)
         }
         fetchData();
 
@@ -46,8 +45,8 @@ const Start = ({ navigation }) => {
 
                 <TouchableOpacity
                     onPress={() => {
-                        !NickName ? navigation.navigate('Login') : navigation.navigate('TabNavigator');
-                    }} // Navigacija na stranicu "Login"
+                        !NickName ? navigation.replace('Login') : navigation.replace('TabNavigator');
+                    }}
                     style={styles.circle}
                 >
                     <MaterialCommunityIcons name="redo" size={60} color="#fff" />

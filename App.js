@@ -6,7 +6,7 @@ import Start from './Component/Start';
 import Login from './Component/Login';
 import Register from './Component/Register';
 import Search from './Component/Search';
-import Chat from './Component/Chat';
+import Chat from './Component/Notifications';
 import Profil1 from './Component/Profil1';
 
 const Stack = createStackNavigator();

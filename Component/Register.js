@@ -19,6 +19,8 @@ import CustomButton from './CustomButton';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { app } from '../config';
 import { v4 as uuidv4 } from 'uuid';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 const Register = ({ navigation }) => {
 
@@ -140,7 +142,7 @@ const Register = ({ navigation }) => {
           .post('https://localhost:7124/register', data)
           .then((response) => {
             Alert.alert("Successful registration!");
-            navigation.navigate('Login');
+            navigation.replace('Login');
           }).catch((error) => {
             if (error.response) {
               alert(error.response.data);
@@ -200,7 +202,7 @@ const Register = ({ navigation }) => {
                 margin: 10,
                 backgroundColor: '#EEBE68',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
               }}>
               <Ionicons name="person-outline" size={90} color="#666" />
             </View>

@@ -35,6 +35,9 @@ const Profil = ({ navigation }) => {
     const [followingCount, setFollowingCount] = useState('');
     const [postCount, setPostCount] = useState('');
 
+    const [dataBookMark, setDataBookMark] = useState([]);
+    const [menuOption, setMenuOption] = useState('Post');
+
 
     useEffect(() => {
 
@@ -43,8 +46,8 @@ const Profil = ({ navigation }) => {
 
             setDataActivities([
                 { key: 'active', value: postCount, name: "book-open", route: 'Profil' },
-                { key: 'following', value: followingCount, name: "star", route: 'Following' },
-                { key: 'followers', value: followersCount, name: "star-outline", route: 'Chat' },
+                { key: 'following', value: followingCount, name: "star", route: 'Followover' },
+                { key: 'followers', value: followersCount, name: "star-outline", route: 'Followover' },
             ]);
 
             const Id = await AsyncStorage.getItem('Id');
@@ -60,24 +63,12 @@ const Profil = ({ navigation }) => {
                     setLastName(response.data.lastName)
                     setImage(response.data.image);
 
-
-                    axios.get(`https://localhost:7124/api/Post/GetPostIdUser/${Id}`)
+                    //postovi
+                    axios.get(`https://localhost:7124/api/Post/GetPostsUsersidUser/${Id}`)
                         .then((res) => {
-
-                            // Pretvori u niz ako nije
-                            const postData = Array.isArray(res.data) ? res.data : [res.data];
-
-                            const updatedData = postData.map(item => ({
-                                ...item,
-                                postId: item.id,
-                                userId: item.idUser,
-                                nickName: nickname,
-                                image: response.data.image,
-                            }));
-                            setData(updatedData);
-                            console.log(updatedData);
+                            console.log({ res })
+                            setData(res.data);
                             setPostCount(res.data.length);
-
                         })
                         .catch((error) => {
                             console.error('Error fetching data:', error);
@@ -87,16 +78,24 @@ const Profil = ({ navigation }) => {
                     axios.get(`https://localhost:7124/api/Followover/GetFollowersCountAsync/${Id}`)
                         .then((res) => {
                             setFollowersCount(res.data)
-                            console.log(res.data)
                         })
                         .catch((error) => {
                             console.error('Error fetching data:', error);
                         });
 
                     //korisnici koje pratim
-                    axios.get(`https://localhost:7124/api/Followover/GetFollowing/${Id}`)
+                    axios.get(`https://localhost:7124/api/Followover/GetFollowingCountAsync/${Id}`)
                         .then((res) => {
-                            setFollowingCount(res.data.length)
+                            setFollowingCount(res.data)
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching data:', error);
+                        });
+
+                    //sacuvani postovi(Book Mark)
+                    axios.get(`https://localhost:7124/api/BookMark/GetSavedPosts/${Id}`)
+                        .then((res) => {
+                            setDataBookMark(res.data);
                         })
                         .catch((error) => {
                             console.error('Error fetching data:', error);
@@ -109,17 +108,16 @@ const Profil = ({ navigation }) => {
     }, [postCount, followingCount, followersCount]);
 
 
-
     const activities = ({ item }) => (
         <View style={styles.activityItem}>
             <View style={{ marginRight: 10 }}>
                 <MaterialCommunityIcons name={item.name} color="#EEBE68" size={20} />
             </View>
             <Text style={styles.activityValue}>{item.value} </Text>
-            <TouchableOpacity onPress={() => navigation.navigate(item.route, { id })}>
+            <TouchableOpacity onPress={() => navigation.replace('TabNavigator', { screen: item.route, params: { id, initialOption: item.key, screen: 'Profil' } })}>
                 <Text style={styles.activityLabel}>{item.key}</Text>
             </TouchableOpacity>
-        </View>
+        </View >
     );
 
     const onRefresh = () => {
@@ -131,10 +129,9 @@ const Profil = ({ navigation }) => {
     const removeNickname = async () => {
         try {
             await AsyncStorage.removeItem('NickName');
-            console.log('Nadimak obrisan.');
             navigation.replace('Login');
         } catch (error) {
-            console.error('Greška pri brisanju nadimka:', error);
+            console.error('Greška pri brisanju nickName:', error);
         }
     };
 
@@ -186,6 +183,7 @@ const Profil = ({ navigation }) => {
                             < View
                                 style={styles.icon}>
                                 <Ionicons name="person-outline" size={90} color="#666" />
+                                {/* <MaterialCommunityIcons name="library" color="#EEBE68" size={120} /> */}
                             </View>
                         )}
 
@@ -209,27 +207,30 @@ const Profil = ({ navigation }) => {
                     <View style={{ alignItems: 'center' }}>
                         <View style={styles.menuList}>
                             <TouchableOpacity
-                                onPress={() => { }}
-                                style={styles.cell}
-                            >
-                                <MaterialCommunityIcons name="book-open" color="#FAFAFA" size={23} />
-
+                                onPress={() => setMenuOption('Post')}
+                                style={styles.cell}> 
+                                <MaterialCommunityIcons name="book-open-page-variant" color="#EEBE68" size={23} />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                onPress={() => { }}
+                                onPress={() => { navigation.replace('TabNavigator', { screen: 'Add Post' }) }}
                                 style={styles.cell}>
-                                <MaterialCommunityIcons name="book" color="#FAFAFA" size={23} />
+                                <MaterialCommunityIcons name="book-plus" color="#EEBE68" size={23} />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                onPress={() => { }}
+                                onPress={() => setMenuOption('BookMark')}
                                 style={styles.cell1} >
-                                <MaterialCommunityIcons name="bookmark" color="#FAFAFA" size={23} />
+                                <MaterialCommunityIcons name="bookshelf" color="#EEBE68" size={23} />
                             </TouchableOpacity>
                         </View>
                         <View style={styles.viewList}>
-                            {data.map((post) => (
-                                <Card key={post.id} post={post} iduser={id} />
-                            ))}
+                            {menuOption == 'Post' ? (
+                                data.map((post) => (
+                                    <Card key={post.postId} post={post} iduser={id} screen="Profil" />))
+                            ) : menuOption == 'BookMark' ? (
+                                dataBookMark.map((post) => (
+                                    <Card key={post.postId} post={post} iduser={id} screen="Profil" />))
+                            ) : null
+                            }
                         </View>
                     </View>
                 </ScrollView>
@@ -265,7 +266,7 @@ const styles = StyleSheet.create({
         margin: 10,
         backgroundColor: '#EEBE68',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     activityItem: {
         flex: 1,
@@ -309,38 +310,32 @@ const styles = StyleSheet.create({
         borderRadius: 30,
     },
     menuList: {
-        width: '96%',
+        width:'100%',
         justifyContent: 'center',
         flexDirection: 'row',
-        backgroundColor: '#EEBE68',
-        borderRadius: 20,
+        backgroundColor:'#fff',
         marginTop: 30,
-        borderWidth: 1,
-        borderColor: '#9F8F8F'
-
+        borderTopWidth:2,
+        borderBottomWidth:2,
+        borderTopColor:'#EEBE68',
+        borderBottomColor:'#EEBE68',
+        color:'#EEBE68'
     },
     cell: {
         width: '32%',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 8,
-        borderEndWidth: 1,
-        borderRightColor: '#9F8F8F'
+        padding: 5,
     },
     cell1: {
         width: '30%',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 8,
-        borderRightColor: '#9F8F8F'
+        padding: 5,
     },
     viewList: {
-        width: '96%',
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#9F8F8F',
-        borderRadius: 20,
-        paddingTop: 10,
+        backgroundColor:'100%',
+        backgroundColor: '#FBFBFB',
         paddingBottom: 25
     },
     scroll: {

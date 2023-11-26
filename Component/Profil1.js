@@ -15,30 +15,14 @@ import { MenuProvider } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Header } from 'react-native-elements';
 
 const Profil1 = ({ navigation, route }) => {
 
-    const { item } = route.params;
+    const { id, screen } = route?.params || {};
 
-    const dataActivities = [
-        { key: 'active', value: '123', name: "book-open" },
-        { key: 'following', value: '789', name: "star" },
-        { key: 'followers', value: '987', name: "star-outline" },
-    ];
-
-    const activities = ({ item }) => (
-        <View style={styles.activityItem}>
-            <View style={{ marginRight: 10 }}>
-                <MaterialCommunityIcons name={item.name} color="#EEBE68" size={20} />
-            </View>
-            <Text style={styles.activityValue}>{item.value} </Text>
-            <Text style={styles.activityLabel}>{item.key}</Text>
-
-        </View>
-    );
-
-    const [Id, setId] = useState(item.id);
-    const [NickName, setNickname] = useState(item.nickName);
+    const [Id, setId] = useState(id);
+    const [NickName, setNickname] = useState('');
     const [FirstName, setFirstName] = useState('');
     const [LastName, setLastName] = useState('');
     const [image, setImage] = useState('');
@@ -49,76 +33,90 @@ const Profil1 = ({ navigation, route }) => {
     const [IdLoggedInUser, setIdLoggedInUser] = useState(0);
     const [followers, setFollowers] = useState(false);
 
+
+    const [followersCount, setFollowersCount] = useState('');
+    const [followingCount, setFollowingCount] = useState('');
+    const [postCount, setPostCount] = useState('');
+
+    const [dataActivities, setDataActivities] = useState([]);
+
     useEffect(() => {
 
         async function fetchData() {
 
-            navigation.setOptions({ headerTitle: item.nickName });
+
+            setDataActivities([
+                { key: 'active', value: postCount, name: "book-open", route: 'Profil' },
+                { key: 'following', value: followingCount, name: "star", route: 'Followover' },
+                { key: 'followers', value: followersCount, name: "star-outline", route: 'Followover' },
+            ]);
 
             const IdUser = await AsyncStorage.getItem('Id');
 
             setIdLoggedInUser(IdUser)
-            console.log(IdLoggedInUser);
+            setId(id);
+
 
             axios.get(`https://localhost:7124/api/User/${Id}`)
                 .then((response) => {
                     setFirstName(response.data.firstName);
                     setLastName(response.data.lastName)
+                    setNickname(response.data.nickName)
                     setImage(response.data.image)
 
-                    console.log(response.data)
-                    axios.get(`https://localhost:7124/api/Post/GetPostIdUser/${Id}`)
+                    navigation.setOptions({ headerTitle: response.data.nickName });
+
+                    axios.get(`https://localhost:7124/api/Post/GetPostsUsersidUser/${Id}`)
                         .then((res) => {
 
-                            // Pretvori u niz ako nije
-                            const postData = Array.isArray(res.data) ? res.data : [res.data];
-
-                            // Loguj response.data pre mapiranja
-                            console.log(postData);
-
-                            const updatedData = postData.map(item => ({
-                                ...item,
-                                postId: item.id,
-                                userId: item.idUser,
-                                nickName: NickName,
-                                image: response.data.image,
-                            }));
-                            setData(updatedData);
-                            console.log(updatedData);
-
+                            setData(res.data);
+                            setPostCount(res.data.length);
                         })
                 })
 
-
-
-            // axios.get(`https://localhost:7124/api/Followover/GetFollowers/${IdUser}`)
-            //     .then((response) => {
-            //         if (response) {
-            //             console.log(response.data);
-
-            //             // Prolazak kroz sve brojeve pratilaca i prikazivanje svakog od njih
-            //             response.data.forEach(user => {
-            //                 console.log(`Follower: ${user.followers}`);
-            //                 if (user.followers == Id) {
-            //                     console.log(`Follower: ${user.followers} ${Id}`);
-            //                 }
-            //             });
-            //         }
-            //     })
-
             axios.get(`https://localhost:7124/api/Followover/IsFollowing/${IdUser}/${Id}`)
                 .then((response) => {
-                    console.log(response.data);
                     setFollowers(response.data);
                 })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                });
 
+            //korisnici koji me prate
+            axios.get(`https://localhost:7124/api/Followover/GetFollowersCountAsync/${Id}`)
+                .then((res) => {
+                    setFollowersCount(res.data)
+                })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                });
+
+            //korisnici koje pratim
+            axios.get(`https://localhost:7124/api/Followover/GetFollowingCountAsync/${Id}`)
+                .then((res) => {
+                    setFollowingCount(res.data)
+                })
+                .catch((error) => {
+                    console.error('Error fetching data:', error);
+                });
 
         }
 
         fetchData();
 
+    }, [postCount, followingCount, followersCount]);
 
-    }, []);
+    const activities = ({ item }) => (
+        <View style={styles.activityItem}>
+            <View style={{ marginRight: 10 }}>
+                <MaterialCommunityIcons name={item.name} color="#EEBE68" size={20} />
+            </View>
+            <Text style={styles.activityValue}>{item.value} </Text>
+            <TouchableOpacity onPress={() => navigation.replace('TabNavigator', { screen: item.route, params: { id: Id, initialOption: item.key, screen: 'Profil1' } })}>
+                <Text style={styles.activityLabel}>{item.key}</Text>
+            </TouchableOpacity>
+        </View >
+    );
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -138,58 +136,52 @@ const Profil1 = ({ navigation, route }) => {
 
         axios.post('https://localhost:7124/api/Followover/AddFollowover', data)
             .then((response) => {
+
+                // Pozovi obaveštenje o praćenju
+                // await hubConnection.invoke("SendFollowNotification", Id, "ImePratitelja");
+
                 console.log(response.data);
-                setFollowers(true)
+                setFollowers(true);
+                setFollowersCount((prev) => prev + 1);
+
             })
     }
 
     const UnFollowing = () => {
 
-        // Alert.alert(
-        //     'Potvrda',
-        //     'Da li ste sigurni da želite da otpratite korisnika?',
-        //     [
-        //         {
-        //             text: 'Ne',
-        //             onPress: () => console.log('Otpracivanje otkazano'),
-        //             style: 'cancel',
-        //         },
-        //         {
-        //             text: 'Da',
-        //             onPress: () => {
-        //                 console.log(IdLoggedInUser);
-        //                 console.log(Id);
-
-        //                 // Pozovi Axios kada korisnik pritisne "Da" u Alert-u
-        //                 axios.delete(`https://localhost:7124/api/Followover/Unfollow/${IdLoggedInUser}/${Id}`)
-        //                     .then((response) => {
-        //                         console.log(response.data);
-        //                         setFollowers(false);
-        //                     });
-        //             },
-        //         },
-        //     ]
-        // );
-
         axios.delete(`https://localhost:7124/api/Followover/Unfollow/${IdLoggedInUser}/${Id}`)
             .then((response) => {
                 console.log(response.data);
                 setFollowers(false)
+                setFollowersCount((prev) => prev - 1);
             })
     }
 
     return (
         <MenuProvider>
             <View style={{ flex: 1 }}>
+                <Header
+                    placement="left"
+                    leftComponent={
+                        <Ionicons
+                            name='arrow-back'
+                            color='#333'
+                            size={18}
+                            onPress={() => navigation.navigate('TabNavigator', { id: IdLoggedInUser, screen: screen })} />
+                    }
+                    centerComponent={{ text: NickName, style: { color: '#333', fontWeight: 'bold' } }}
+                    containerStyle={{ backgroundColor: '#FBFBFB' }}
+                />
                 <ScrollView
                     style={styles.container}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
-                            onRefresh={onRefresh}
+                            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                         />
                     }
                 >
+
                     <View style={styles.hederView}>
                         <View>
                             {image ? (
@@ -214,62 +206,59 @@ const Profil1 = ({ navigation, route }) => {
 
                     <View style={styles.hrLine}></View>
 
+                    {IdLoggedInUser != Id ? (
 
-                    <View style={styles.body}>
-                        <View style={styles.info}>
-                            <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
-                            <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
+                        <View style={styles.body}>
+                            <View style={styles.info}>
+                                <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
+                                <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
+                            </View>
+
+                            {followers == false ? (
+                                <TouchableOpacity
+                                    onPress={Following}
+                                    style={styles.buttonfollow}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <MaterialCommunityIcons name="star-outline" color="white" size={22} />
+                                        <Text style={{ color: 'white', fontSize: '15' }}>Zaprati</Text>
+                                    </View>
+
+                                </TouchableOpacity>
+                            ) : followers == true ? (
+                                <TouchableOpacity
+                                    onPress={UnFollowing}
+                                    style={styles.buttonfollow1}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                                        <MaterialCommunityIcons name="star" color="#0060DB" size={22} />
+                                        <Text style={{ color: '#0060DB', fontSize: '15' }}>Pratim</Text>
+                                    </View>
+
+                                </TouchableOpacity>
+                            ) : null}
                         </View>
-                        {followers == false ? (
-                            <TouchableOpacity
-                                onPress={Following}
-                                style={styles.buttonfollow}
-                            >
-                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <MaterialCommunityIcons name="star-outline" color="white" size={22} />
-                                    <Text style={{ color: 'white', fontSize: '15' }}>Zaprati</Text>
-                                </View>
+                    ) : (
 
-                            </TouchableOpacity>
-                        ) : followers == true ? (
-                            <TouchableOpacity
-                                onPress={UnFollowing}
-                                style={styles.buttonfollow1}
-                            >
-                                <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                    <MaterialCommunityIcons name="star" color="#0060DB" size={22} />
-                                    <Text style={{ color: '#0060DB', fontSize: '15' }}>Pratim</Text>
-                                </View>
-
-                            </TouchableOpacity>
-                        ) : (<></>)}
-                    </View>
-
-
+                        <View style={styles.body1}>
+                            <View style={styles.info1}>
+                                <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
+                                <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
+                            </View>
+                        </View>
+                    )}
 
                     <View style={{ alignItems: 'center' }}>
                         <View style={styles.menuList}>
                             <TouchableOpacity
-                                onPress={() => { }}
                                 style={styles.cell}
                             >
-                                <MaterialCommunityIcons name="book-open" color="#FAFAFA" size={23} />
-
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => { }}
-                                style={styles.cell}>
-                                <MaterialCommunityIcons name="book" color="#FAFAFA" size={23} />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => { }}
-                                style={styles.cell1} >
-                                <MaterialCommunityIcons name="bookmark" color="#FAFAFA" size={23} />
+                                <MaterialCommunityIcons name="book-open-page-variant" color="#EEBE68" size={23} />
                             </TouchableOpacity>
                         </View>
                         <View style={styles.viewList}>
                             {Array.isArray(data) && data.map((post) => (
-                                <Card key={post.id} post={post} iduser={IdLoggedInUser} />
+                                <Card key={post.postId} post={post} iduser={IdLoggedInUser} screen="Profil1" />
                             ))}
                         </View>
                     </View>
@@ -339,6 +328,17 @@ const styles = StyleSheet.create({
     info: {
         alignItems: 'flex-start',
     },
+    body1: {
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    info1: {
+        width: '82%',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
     buttonfollow: {
         width: 120,
         justifyContent: 'center',
@@ -358,41 +358,27 @@ const styles = StyleSheet.create({
         borderColor: '#0060DB'
     },
     menuList: {
-        width: '96%',
+        width:'100%',
         justifyContent: 'center',
         flexDirection: 'row',
-        backgroundColor: '#EEBE68',
-        borderRadius: 20,
+        backgroundColor:'#fff',
         marginTop: 30,
-        borderWidth: 1,
-        borderColor: '#9F8F8F'
-
+        borderTopWidth:2,
+        borderBottomWidth:2,
+        borderTopColor:'#EEBE68',
+        borderBottomColor:'#EEBE68',
+        color:'#EEBE68'
     },
     cell: {
-        width: '32%',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 8,
-        borderEndWidth: 1,
-        borderRightColor: '#9F8F8F'
-    },
-    cell1: {
-        width: '30%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 8,
-        borderRightColor: '#9F8F8F'
+        padding: 5,
     },
     viewList: {
-        width: '96%',
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#9F8F8F',
-        borderRadius: 20,
-        paddingTop: 10,
+        backgroundColor:'100%',
+        backgroundColor: '#FBFBFB',
         paddingBottom: 25
     },
-    scroll: {
-        backgroundColor: 'red',
-    }
 });
+
+

@@ -22,7 +22,6 @@ const Home = ({ navigation }) => {
             axios.get(`https://localhost:7124/api/Post/GetPostsUsersFollowover/${IdUser}`)
                 .then((response) => {
                     setData(response.data);
-                    console.log(response.data)
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
@@ -54,17 +53,18 @@ const Home = ({ navigation }) => {
                 leftComponent={
                     {
                         icon: 'search', color: '#333',
-                        onPress: () => navigation.navigate('Search'),
+                        onPress: () => navigation.replace('TabNavigator', { screen: 'Search' }),
                     }}
                 centerComponent={{ text: 'BookMate', style: { color: '#333', fontWeight: 'bold' } }}
                 rightComponent={{
-                    icon: 'chat', color: '#333',
-                    onPress: () => navigation.navigate('Chat')
+                    icon: 'notifications', // Korišćenje ikone za obaveštenja
+                    color: '#333', color: '#333',
+                    onPress: () => navigation.replace('TabNavigator', { screen: 'Notifications' }) // Navigacija na ekran za obaveštenja
                 }}
                 containerStyle={{ backgroundColor: '#fff' }}
             />
             {data.map((post) => (
-                <Card key={post.postId} post={post} iduser={Id} />
+                <Card key={post.postId} post={post} iduser={Id} screen="Home" />
             ))}
         </ScrollView >
     );
@@ -74,7 +74,10 @@ export default Home;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
+        // backgroundColor: 'rgb(254, 254, 246)',
+        // backgroundColor:'#fff'
+        backgroundColor: '#FBFBFB'
+
     },
     card: {
         backgroundColor: 'white',
