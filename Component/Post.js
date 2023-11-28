@@ -297,7 +297,6 @@ const Post = ({ navigation, route }) => {
                 style={{ fontSize: 12, color:'#1b5ca1'}} 
                 onPress={() => navigation.replace('TabNavigator', { screen: 'LikedList', params: { postId: post.postId, screen: screen } })}
                 >view {likedCount} likes</Text>
-                {/* <Comment postId={post.postId} iduser={IdLoggedInUser} setcommentCount={setcommentCount} screen={screen}  /> */}
                 {post && post.postId && (
                 <Comment postId={post.postId} iduser={IdLoggedInUser} setcommentCount={setcommentCount} screen={screen} />
                 )}

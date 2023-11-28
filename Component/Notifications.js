@@ -1,175 +1,174 @@
-// import React, { useEffect, useState } from "react";
-// import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-// import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-// import axios from "axios";
-
-// export default function Notifications() {
-//     const [hubConnection, setHubConnection] = useState(null);
-//     const [text, setText] = useState("");
-//     const [messageList, setMessageList] = useState([]);
-//     const [followResult, setFollowResult] = useState(null);
-
-//     useEffect(() => {
-//         createHubConnection();
-//     }, [])
-
-//     const createHubConnection = async () => {
-//         const hubConnection = new HubConnectionBuilder().withUrl("https://localhost:7124/notifications").build();
-
-//         console.log("Pokušavam da uspostavim vezu...");
-
-//         try {
-//             await hubConnection.start();
-//             console.log("Vezanje uspešno pokrenuto");
-//         } catch (e) {
-//             console.log("Greška prilikom pokretanja veze:", e);
-//         }
-
-//         setHubConnection(hubConnection);
-//     }
-
-//     useEffect(() => {
-//         if (hubConnection) {
-//             hubConnection.on("ReceiveMessage", (message) => {
-//                 setMessageList((prevState => {
-//                     return prevState.concat(message);
-//                 }))
-//             });
-
-//             // hubConnection.on("ReceiveFollowNotification", (notification) => {
-//             //     setMessageList((prevState) => {
-//             //         return prevState.concat(notification);
-//             //     });
-//             // });
-
-//             hubConnection.on("ReceiveFollowNotification", (notification) => {
-//                 setMessageList((prevState) => {
-//                     return prevState.concat(`${notification} started following you (ID: ${followerInfo.Id}).`);
-//                 });
-//             });
-//         }
-//     }, [hubConnection])
-
-//     const sendMSG = async () => {
-//         if (hubConnection) {
-//             setText("");
-//             await hubConnection.invoke("SendMessage", text);
-//         }
-//     }
-
-//     const Following = () => {
-//         const data = {
-//             followers: 4,
-//             following: 2,
-//         };
-
-//         axios.post('https://localhost:7124/api/Followover/AddFollowover', data)
-//             .then((response) => {
-//                 // Pozovi obaveštenje o praćenju
-//                 hubConnection.invoke("SendFollowNotification", "4", "ImePratitelja")
-//                     .then(() => {
-//                         console.log("Follow notification sent successfully");
-//                         // setFollowResult("Following successful!");
-//                     })
-//                     .catch((error) => {
-//                         console.error("Error sending follow notification:", error);
-//                         setFollowResult("Error following user.");
-//                     });
-//             })
-//             .catch((error) => {
-//                 console.error("Error adding followover:", error);
-//                 setFollowResult("Error following user.");
-//             });
-//     }
-
-//     return (
-//         <View style={styles.container}>
-//             <TextInput
-//                 style={styles.input}
-//                 value={text}
-//                 onChangeText={(text) => setText(text)}
-//                 placeholder="Enter your message"
-//             />
-//             <TouchableOpacity onPress={sendMSG}>
-//                 <Text>Send message</Text>
-//             </TouchableOpacity>
-
-//             <Text>Message List:</Text>
-//             <View>
-//                 {messageList.map((item, index) => (
-//                     <View key={index}>
-//                         <Text>{item}</Text>
-//                     </View>
-//                 ))}
-//             </View>
-
-//             <TouchableOpacity
-//                 onPress={Following}
-//                 style={{ backgroundColor: 'red', padding: 20 }}
-//             >
-//                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-//                     <Text style={{ fontSize: '15' }}>Zaprati</Text>
-//                 </View>
-//             </TouchableOpacity>
-
-//             {followResult && <Text>{followResult}</Text>}
-//         </View>
-//     )
-// }
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         alignItems: 'center',
-//         justifyContent: 'flex-start',
-//         backgroundColor: '#fff'
-//     },
-//     input: {
-//         height: 40,
-//         borderColor: 'gray',
-//         borderWidth: 1,
-//         marginBottom: 10,
-//         padding: 10,
-//         width: '80%'
-//     },
-// });
-
-
 import React, { useEffect, useState } from "react";
-import { View, Text } from 'react-native';
-import { HubConnectionBuilder } from '@microsoft/signalr';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { Header } from 'react-native-elements';
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import moment from 'moment'
 
-export default function Notifications() {
-    const [hubConnection, setHubConnection] = useState(null);
+export default function Notifications({ navigation }) {
 
-    useEffect(() => {
-        createHubConnection();
-    }, []);
+    const [notifications, setNotifications] = useState([]);
 
-    const createHubConnection = async () => {
-        const hubConnection = new HubConnectionBuilder().withUrl("https://localhost:7124/notifications").build();
+    useEffect(()=>{
 
-        try {
-            await hubConnection.start();
-            console.log("Connected to SignalR Hub");
-        } catch (e) {
-            console.log("Error connecting to SignalR Hub:", e);
-        }
+        async function fetchData() {
 
-        setHubConnection(hubConnection);
-    }
+            const Id = await AsyncStorage.getItem('Id');
 
-    useEffect(() => {
-        if (hubConnection) {
-            hubConnection.on("ReceiveFollowNotification", (followerInfo) => {
-                console.log(`${followerInfo.Name} started following you (ID: ${followerInfo.Id}).`);
+            console.log(Id)
+
+            axios.get(`https://localhost:7124/api/User/GetFollowersUsers/${Id}`)
+            .then((response) => {
+                    console.log(response.data);
+
+                    const reversedData = response.data.reverse();
+                    setNotifications(reversedData);
+                })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
             });
         }
-    }, [hubConnection]);
+        
+        fetchData();
+
+    },[])
+    
 
     return (
-        <View>
-            <Text>Notifications Component</Text>
-        </View>
-    );
+        <ScrollView contentContainerStyle={styles.container}>
+            <Header
+                placement="left"
+                leftComponent={
+
+                    <Ionicons
+                        name='arrow-back'
+                        color='#333'
+                        size={18}
+                        onPress={() => navigation.replace('TabNavigator', { screen: 'Post', params: { postId, screen: screen } })} />
+                }
+                containerStyle={{ backgroundColor: '#fff' }}
+            />
+
+            <FlatList
+                data={notifications}
+                keyExtractor={(item, index) => (item && item.id ? item.id.toString() : index.toString())}
+                renderItem={({ item, index }) => (
+                    <TouchableOpacity
+                        onPress={() => navigation.replace('TabNavigator', { screen: 'Notifications' })}
+                        key={item && item.id ? item.id.toString() : 'default'}
+                        style={[styles.resultItem, index % 2 === 1 && styles.evenResultItem]}
+                    >
+                        <View style={styles.resultContainer}>
+                            <View style={styles.resultLeft}>
+                            {item.image ? (
+                                <Image source={{ uri: item.image }} style={styles.slika} />
+                            ) : (
+                                <View style={styles.icon}>
+                                    <Ionicons name="person-outline" size={20} color="#666" />
+                                </View>
+                            )}
+                            <View style={styles.textContainer}>
+                                    <Text>Pocinje vas pratiti</Text>
+                                    <Text style={{color: '#555'}}>{item.nickName}</Text>
+                           </View>
+                           </View>
+                           <Text style={{ color: '#aaa', fontSize:12 }}>{moment(item.createdAt).fromNow()}</Text>
+
+                        </View>
+                    </TouchableOpacity>
+                )}
+            />
+        </ScrollView>
+    )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'flex-start',
+        backgroundColor: '#fff',
+        paddingHorizontal: 10,
+    },
+    optionsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+        width: '100%',
+    },
+    optionButton: {
+        flex: 1,
+        paddingVertical: 8,
+        paddingHorizontal: 5,
+        marginVertical: 10,
+        borderBottomEndRadius: 1,
+        borderTopStartRadius: 1,
+        borderBottomColor: '#ccc',
+        borderRadius: 20,
+        alignItems: 'center',
+    },
+    selectedOption: {
+        backgroundColor: '#EEBE68',
+    },
+    optionText: {
+        fontSize: 16,
+        color: '#555',
+    },
+    selectedText: {
+        color: '#fff',
+    },
+    input: {
+        width: '100%',
+        borderBottomWidth: 1,
+        borderColor: '#ccc',
+        padding: 8,
+        marginBottom: 12,
+        borderRadius: 8,
+        textAlign: 'start',
+        color: '#333',
+    },
+    resultItem: {
+        padding: 16,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
+    evenResultItem: {
+        backgroundColor: '#eee',
+    },
+    noResultsText: {
+        color: '#aaa',
+        fontSize: 10,
+        padding: 8,
+    },
+    slika: {
+        width: 50,
+        height: 50,
+        borderRadius: 80,
+    },
+    icon: {
+        width: 50,
+        height: 50,
+        borderRadius: 80,
+        backgroundColor: '#EEBE68',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    resultContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent:'space-between',
+        width:'100%',
+    },
+    resultLeft:{
+        flexDirection: 'row',
+        alignItems:'center'
+    },
+        textContainer: {
+        marginLeft: 10,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
+
+});
+
+

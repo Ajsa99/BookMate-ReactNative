@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Picker, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Yup from 'yup';
+import CustomButton from './CustomButton';
 
 const AddPost = ({ navigation }) => {
     const [idUser, setIdUser] = useState(0);
@@ -90,18 +91,21 @@ const AddPost = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Zanr:</Text>
-            <Picker
-                selectedValue={Genre}
-                style={styles.picker}
-                onValueChange={(itemValue) => setGenre(itemValue)}
-            >
-                {genres.map((g) => (
-                    <Picker.Item key={g} label={g || 'Izaberite zanr'} value={g} />
-                ))}
-            </Picker>
-            <Text style={{ color: 'red' }}>{errors.Genre}</Text>
+            <View style={{width:'100%'}}> 
+                <Text style={styles.label}>Zanr:</Text>
+               <Picker
+                    selectedValue={Genre}
+                    style={styles.input}
+                    onValueChange={(itemValue) => setGenre(itemValue)}>
+                    {genres.map((g) => (
+                        <Picker.Item key={g} label={g || 'Izaberite zanr'} value={g} />
+                    ))}
+                </Picker>
+                <Text style={{ color: 'red' }}>{errors.Genre}</Text>
+            
+            </View>
 
+            <View style={{width:'100%'}}>
             <Text style={styles.label}>Autor:</Text>
             <TextInput
                 style={styles.input}
@@ -110,7 +114,9 @@ const AddPost = ({ navigation }) => {
                 placeholderTextColor='#333'
             />
             <Text style={{ color: 'red' }}>{errors.Author}</Text>
-
+            </View>
+            
+            <View style={{width:'100%'}}>
             <Text style={styles.label}>Naziv knjige:</Text>
             <TextInput
                 style={styles.input}
@@ -119,7 +125,9 @@ const AddPost = ({ navigation }) => {
                 placeholderTextColor='#333'
             />
             <Text style={{ color: 'red' }}>{errors.Title}</Text>
+            </View>
 
+            <View style={{width:'100%'}}>
             <Text style={styles.label}>Vaš doživljaj:</Text>
             <TextInput
                 style={styles.input}
@@ -130,6 +138,8 @@ const AddPost = ({ navigation }) => {
                 placeholderTextColor='#333'
             />
             <Text style={{ color: 'red' }}>{errors.Experience}</Text>
+            </View>
+
 
             <TouchableOpacity
                 onPress={onSubmit}
@@ -139,6 +149,7 @@ const AddPost = ({ navigation }) => {
                     Dodaj post
                 </Text>
             </TouchableOpacity>
+
         </View>
     );
 };
@@ -146,36 +157,30 @@ const AddPost = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        alignItems: 'start',
         paddingHorizontal: 16,
         backgroundColor: '#fff'
     },
     label: {
-        fontSize: 16,
-        marginBottom: 6,
-    },
-    picker: {
-        width: '100%',
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        marginBottom: 12,
+        paddingLeft:5,
+        fontSize: 14,
+        color:'#656565',
     },
     input: {
         width: '100%',
-        borderWidth: 1,
+        borderBottomWidth: 1,
         borderColor: '#ccc',
         padding: 8,
-        marginBottom: 12,
         borderRadius: 8,
-        textAlign: 'start'
+        textAlign: 'start',
+        color: '#333',
+        fontSize:12
     },
     button: {
-        backgroundColor: '#0060DB',
+        backgroundColor: '#EEBE68',
         padding: 10,
         borderRadius: 10,
-        marginBottom: 30,
         width: '100%',
     },
     buttonText: {

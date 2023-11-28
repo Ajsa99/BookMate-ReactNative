@@ -67,10 +67,9 @@ export default function FollowingList({ navigation, route }) {
                             size={18}
                             onPress={() => navigation.navigate('TabNavigator', { screen: screen, params: { id: Id, screen: screen } })}
                         />
-                        <Text>{Id}</Text>
                     </>
                 }
-                containerStyle={{ backgroundColor: '#FBFBFB' }}
+                containerStyle={{ backgroundColor: '#fff' }}
             />
             <View style={styles.optionsContainer}>
                 {searchOptions.map((item) => (

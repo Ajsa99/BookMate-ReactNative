@@ -183,7 +183,6 @@ const Profil = ({ navigation }) => {
                             < View
                                 style={styles.icon}>
                                 <Ionicons name="person-outline" size={90} color="#666" />
-                                {/* <MaterialCommunityIcons name="library" color="#EEBE68" size={120} /> */}
                             </View>
                         )}
 
@@ -334,7 +333,7 @@ const styles = StyleSheet.create({
         padding: 5,
     },
     viewList: {
-        backgroundColor:'100%',
+        width:'100%',
         backgroundColor: '#FBFBFB',
         paddingBottom: 25
     },

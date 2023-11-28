@@ -132,6 +132,7 @@ const Profil1 = ({ navigation, route }) => {
         const data = {
             followers: IdLoggedInUser,
             following: Id,
+            notification: false
         };
 
         axios.post('https://localhost:7124/api/Followover/AddFollowover', data)
@@ -221,7 +222,7 @@ const Profil1 = ({ navigation, route }) => {
                                 >
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <MaterialCommunityIcons name="star-outline" color="white" size={22} />
-                                        <Text style={{ color: 'white', fontSize: '15' }}>Zaprati</Text>
+                                        <Text style={{ color: 'white', fontSize: '15', fontWeight:'bold' }}>Zaprati</Text>
                                     </View>
 
                                 </TouchableOpacity>
@@ -231,8 +232,8 @@ const Profil1 = ({ navigation, route }) => {
                                     style={styles.buttonfollow1}
                                 >
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                                        <MaterialCommunityIcons name="star" color="#0060DB" size={22} />
-                                        <Text style={{ color: '#0060DB', fontSize: '15' }}>Pratim</Text>
+                                        <MaterialCommunityIcons name="star" color="#EEBE68" size={22} />
+                                        <Text style={{ color: '#EEBE68', fontSize: '15', fontWeight:'bold' }}>Pratim</Text>
                                     </View>
 
                                 </TouchableOpacity>
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
         width: 120,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#0060DB',
+        backgroundColor: '#EEBE68',
         paddingVertical: 10,
         borderRadius: 30,
     },
@@ -351,17 +352,17 @@ const styles = StyleSheet.create({
         width: 120,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: '#FBFBFB',
         paddingVertical: 10,
         borderRadius: 30,
-        borderWidth: 1,
-        borderColor: '#0060DB'
+        borderWidth: 2,
+        borderColor: '#EEBE68'
     },
     menuList: {
         width:'100%',
         justifyContent: 'center',
         flexDirection: 'row',
-        backgroundColor:'#fff',
+        backgroundColor:'#FBFBFB',
         marginTop: 30,
         borderTopWidth:2,
         borderBottomWidth:2,

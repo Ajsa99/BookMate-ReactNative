@@ -15,91 +15,63 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
     const [image, setImage] = useState('');
     const [data, setData] = useState([]);
 
-    const [likedComment, setLikedComment] = useState(false);
-    const [likedCommentCount, setLikedCommentCount] = useState(0);
-
     const [text, setText] = useState('');
 
+
     useEffect(() => {
-
         async function fetchData() {
+            try {
 
-            const nickname = await AsyncStorage.getItem('NickName');
-            const image = await AsyncStorage.getItem('Image');
+                const nickname = await AsyncStorage.getItem('NickName');
+                const image = await AsyncStorage.getItem('Image');
+            
+                setImage(image);
+                setNickName(nickname);
 
-            setImage(image);
-            setNickName(nickname);
+                const commentsResponse = await axios.get(`https://localhost:7124/api/Comment/GetCommentsByPostId/${postId}`);
+                const comments = commentsResponse.data.reverse();
+    
+                // Napravite niz obećanja za lajkove i brojanje lajkova
+                const likePromises = comments.map(async (comment) => {
+                    try {
+                        const isLikedCommentResponse = await axios.get(`https://localhost:7124/api/LikeComment/IsLikedComment/${iduser}/${comment.id}`);
+                        const likecommentCountResponse = await axios.get(`https://localhost:7124/api/LikeComment/GetLikeCommentCountByCommentId/${comment.id}`);
 
-            await axios.get(`https://localhost:7124/api/Comment/GetCommentsByPostId/${postId}`)
-                .then((response) => {
-                    setData(response.data.reverse());
-                    console.log('GetCommentsByPostId');
-
-                    response.data.map(comment => {
-                        //LikeComment
-                        axios.get(`https://localhost:7124/api/LikeComment/IsLikedComment/${iduser}/${comment.id}`)
-                            .then((res) => {
-                                // setLikedComment(res.data)
-                                console.log('IsLikedComment')
-                                console.log(res.data)
-                            })
-                            .catch((error) => {
-                                console.error('Error fetching data:', error);
-                            })
-                        axios.get(`https://localhost:7124/api/LikeComment/GetLikeCommentCountByCommentId/${comment.id}`)
-                            .then((res) => {
-                                // setLikedCommentCount(res.data)
-                                console.log('GetLikeCommentCountByCommentId')
-                            })
-                            .catch((error) => {
-                                console.error('Error fetching data:', error);
-                            })
+                        const isDisLikedCommentResponse = await axios.get(`https://localhost:7124/api/DisLikeComment/IsDisLikedComment/${iduser}/${comment.id}`);
+                        const dislikecommentCountResponse = await axios.get(`https://localhost:7124/api/DisLikeComment/GetDisLikeCommentCountByCommentId/${comment.id}`);
+    
+                        console.log("DisLike")
+                        console.log(isDisLikedCommentResponse)
+                        console.log(dislikecommentCountResponse)
 
 
-                    });
-                })
+                        // Dodajte likeCount u objekat komentara
+                        const updatedComment = {
+                            ...comment,
+                            isLikedComment: isLikedCommentResponse.data,
+                            likeCommentCount: likecommentCountResponse.data,
+                            isDisLikedComment: isDisLikedCommentResponse.data,
+                            dislikeCommentCount: dislikecommentCountResponse.data
+                        };
+    
+                        return updatedComment;
+                    } catch (error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+    
+                // Sačekajte da se sva obećanja završe pre nego što ažurirate stanje
+                const updatedComments = await Promise.all(likePromises);
+    
+                // Ažurirajte stanje sa svim ažuriranim komentarima
+                setData(updatedComments);
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
-
-        fetchData()
-    }, [postId])
-
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         try {
-    //             const commentsResponse = await axios.get(`https://localhost:7124/api/Comment/GetCommentsByPostId/${postId}`);
-    //             const comments = commentsResponse.data.reverse();
+        }
     
-    //             // Napravite niz obećanja za lajkove i brojanje lajkova
-    //             const likePromises = comments.map(async (comment) => {
-    //                 try {
-    //                     const isLikedCommentResponse = await axios.get(`https://localhost:7124/api/LikeComment/IsLikedComment/${iduser}/${comment.id}`);
-    //                     const likecommentCountResponse = await axios.get(`https://localhost:7124/api/LikeComment/GetLikeCommentCountByCommentId/${comment.id}`);
-    
-    //                     // Dodajte likeCount u objekat komentara
-    //                     const updatedComment = {
-    //                         ...comment,
-    //                         isLikedComment: isLikedCommentResponse.data,
-    //                         likeCommentCount: likecommentCountResponse.data
-    //                     };
-    
-    //                     return updatedComment;
-    //                 } catch (error) {
-    //                     console.error('Error fetching data:', error);
-    //                 }
-    //             });
-    
-    //             // Sačekajte da se sva obećanja završe pre nego što ažurirate stanje
-    //             const updatedComments = await Promise.all(likePromises);
-    
-    //             // Ažurirajte stanje sa svim ažuriranim komentarima
-    //             setData(updatedComments);
-    //         } catch (error) {
-    //             console.error('Error fetching data:', error);
-    //         }
-    //     }
-    
-    //     fetchData();
-    // }, [postId]);
+        fetchData();
+    }, [postId]);
     
 
     const submitComment = async (idPost) => {
@@ -125,7 +97,11 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
                 idPost: idPost,
                 text: text,
                 nickName: nickName,
-                image: image
+                image: image,
+                isLikedComment: false,
+                likeCommentCount: 0,
+                isDiSLikedComment: false,
+                dislikeCommentCount: 0
             };
 
             console.log({newComment})
@@ -152,7 +128,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
         }
     }
 
-    const onLikeComment = async (idComment) => {
+    const onLikeComment = (idComment) => {
 
         const data = {
             idUser: iduser,
@@ -160,11 +136,9 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
         }
 
         try {
-        await axios.post(`https://localhost:7124/api/LikeComment/AddLikeComment`, data)
+             axios.post(`https://localhost:7124/api/LikeComment/AddLikeComment`, data)
             .then((response) => {
                 console.log(response);
-                // setLiked(true);
-                // setLikedCount((prevLikedCount) => prevLikedCount + 1);
                 setData((prevData) =>
                 prevData.map((comment) =>
                     comment.id === idComment
@@ -181,18 +155,65 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
         }
     }
 
-    const unLikeComment = async (idComment) => {
+    const unLikeComment =  (idComment) => {
 
         try {
-            await axios.delete(`https://localhost:7124/api/LikeComment/unLikeComment/${iduser}/${idComment}`)
+            axios.delete(`https://localhost:7124/api/LikeComment/unLikeComment/${iduser}/${idComment}`)
             .then((response) => {
                 console.log(response);
-                // setLiked(false);
-                // setLikedCount((prevLikedCount) => prevLikedCount - 1);
                 setData((prevData) =>
                 prevData.map((comment) =>
                     comment.id === idComment
                         ? { ...comment, isLikedComment: false, likeCommentCount: comment.likeCommentCount - 1 }
+                        : comment
+                )
+            );
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        } catch (error) {
+            console.error('Greška prilikom lajkovanja komentara', error);
+        }
+    }
+
+    const onDisLikeComment = (idComment) => {
+
+        const data = {
+            idUser: iduser,
+            idComment: idComment
+        }
+
+        try {
+             axios.post(`https://localhost:7124/api/DisLikeComment/AddDisLikeComment`, data)
+            .then((response) => {
+                console.log(response);
+                setData((prevData) =>
+                prevData.map((comment) =>
+                    comment.id === idComment
+                        ? { ...comment, isDisLikedComment: true, dislikeCommentCount: comment.dislikeCommentCount + 1 }
+                        : comment
+                )
+            );
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+        } catch (error) {
+            console.error('Greška prilikom lajkovanja komentara', error);
+        }
+    }
+
+    const unDisLikeComment =  (idComment) => {
+
+        try {
+            axios.delete(`https://localhost:7124/api/DisLikeComment/unDisLikeComment/${iduser}/${idComment}`)
+            .then((response) => {
+                console.log(response);
+                setData((prevData) =>
+                prevData.map((comment) =>
+                    comment.id === idComment
+                        ? { ...comment, isDisLikedComment: false, dislikeCommentCount: comment.dislikeCommentCount - 1 }
                         : comment
                 )
             );
@@ -216,8 +237,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
                     multiline={true} // Postavka za više redova
                     numberOfLines={4} // Možete postaviti broj redova koje želite prikazati unapred
                 />
-                <TouchableOpacity onPress={() => submitComment(post.postId)}>
-                    {/* <Ionicons name="paper-plane" size={15} color="#555" /> */}
+                <TouchableOpacity onPress={() => submitComment(postId)}>
                     <MaterialCommunityIcons name="lightbulb-on-outline" color="#1b5ca1" size={20} />
                 </TouchableOpacity>
             </View>
@@ -241,20 +261,30 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
                         <View style={{ flexDirection:'row', alignItems:'center' ,justifyContent:'space-between'}}>
                             <Text style={styles.commentUser}>{comment.nickName}</Text>
                             <Text style={{ fontSize: 10, color: '#aaa'}}>{moment(comment.createdAt).fromNow()}</Text>
-                            <View style={{alignItems:'center',justifyContent:'center', flexDirection:'row'}}>
-                              {/* {comment.isLikedComment ? ( 
+                            <View style={{alignItems:'flex-end',justifyContent:'center', flexDirection:'row'}}>
+
+                              {comment.isLikedComment ? ( 
                               <>
-                                <MaterialCommunityIcons name="thumb-up" color="#333" size={15} onPress={unLikeComment(comment.id)} />
-                                <Text  style={{ fontSize: 10, marginRight: 5 }}>{comment.likeCommentCount}</Text>
+                                <MaterialCommunityIcons name="thumb-up" color="#333" size={15} onPress={()=>unLikeComment(comment.id)} />
+                                <Text  style={{ fontSize: 10, marginRight:5 }}>{comment.likeCommentCount}</Text>
+                                <MaterialCommunityIcons name="thumb-down-outline" color="#333" size={15}/>
+                                <Text  style={{ fontSize: 10 }}>{comment.dislikeCommentCount}</Text>
                               </>
-                              ) :(
+                              ): comment.isDisLikedComment ? (
+                                <>
+                                 <MaterialCommunityIcons name="thumb-up-outline" color="#333" size={15}/>
+                                 <Text  style={{ fontSize: 10, marginRight:5 }}>{comment.likeCommentCount}</Text>
+                                <MaterialCommunityIcons name="thumb-down" color="#333" size={15} onPress={()=>unDisLikeComment(comment.id)} />
+                                <Text  style={{ fontSize: 10 }}>{comment.dislikeCommentCount}</Text>
+                              </>
+                              ) : (
                               <>
-                                <MaterialCommunityIcons name="thumb-up-outline" color="#333" size={15} onPress={onLikeComment(comment.id)} />
-                                <Text  style={{ fontSize: 10, marginRight: 5 }}>{comment.likeCommentCount}</Text>
+                                <MaterialCommunityIcons name="thumb-up-outline" color="#333" size={15} onPress={()=>onLikeComment(comment.id)} />
+                                <Text  style={{ fontSize: 10, marginRight:5 }}>{comment.likeCommentCount}</Text>
+                                <MaterialCommunityIcons name="thumb-down-outline" color="#333" size={15} onPress={()=>onDisLikeComment(comment.id)} />
+                                <Text  style={{ fontSize: 10}}>{comment.dislikeCommentCount}</Text>
                               </>  
-                              )} */}
-                                <MaterialCommunityIcons name="thumb-down-outline" color="#333" size={15} />
-                                <Text  style={{ fontSize: 10 }}>12</Text>
+                              )}
                             </View>
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

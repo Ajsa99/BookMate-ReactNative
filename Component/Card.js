@@ -3,7 +3,6 @@ import { View, Text, Image, StyleSheet } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
-import Comment from './Comment';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
