@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native';
-import { Header } from 'react-native-elements';
+import { View, Text, StyleSheet, ScrollView, Image, ImageBackground, Pressable } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import moment from 'moment';
@@ -31,11 +30,12 @@ const Post = ({ navigation, route }) => {
         const fetchData = async () => {
             const IdUser = await AsyncStorage.getItem('Id');
             const idLogged = parseInt(IdUser, 10);
-            console.log(IdUser)
+
             setIdLoggedInUser(idLogged);
 
+
             //Post
-            axios.get(`https://localhost:7124/api/Post/GetPostsUsers/${postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Post/GetPostsUsers/${postId}`)
                 .then((response) => {
                     console.log(response.data);
                     setPost(response.data);
@@ -47,14 +47,14 @@ const Post = ({ navigation, route }) => {
                     console.error('Error fetching data:', error);
                 })
             //Like
-            axios.get(`https://localhost:7124/api/Like/IsLiked/${idLogged}/${postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Like/IsLiked/${idLogged}/${postId}`)
                 .then((response) => {
                     setLiked(response.data)
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
                 })
-            axios.get(`https://localhost:7124/api/Like/GetLikeCountByPostId/${postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Like/GetLikeCountByPostId/${postId}`)
                 .then((response) => {
                     setLikedCount(response.data)
                 })
@@ -62,14 +62,14 @@ const Post = ({ navigation, route }) => {
                     console.error('Error fetching data:', error);
                 })
             //DisLike
-            axios.get(`https://localhost:7124/api/DisLike/IsDisLiked/${idLogged}/${postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLike/IsDisLiked/${idLogged}/${postId}`)
                 .then((response) => {
                     setDisLiked(response.data)
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
                 })
-            axios.get(`https://localhost:7124/api/DisLike/GetDisLikeCountByPostId/${postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLike/GetDisLikeCountByPostId/${postId}`)
                 .then((response) => {
                     setDisLikedCount(response.data)
                 })
@@ -77,7 +77,7 @@ const Post = ({ navigation, route }) => {
                         console.error('Error fetching data:', error);
                 })
             //Comment
-            axios.get(`https://localhost:7124/api/Comment/GetCommentCountByPostId/${postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Comment/GetCommentCountByPostId/${postId}`)
                 .then((response) => {
                     setcommentCount(response.data)
                 })
@@ -85,13 +85,10 @@ const Post = ({ navigation, route }) => {
                     console.error('Error fetching data:', error);
                 })
             //BookMark
-            axios.get(`https://localhost:7124/api/BookMark/IsBookMark/${idLogged}/${postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/BookMark/IsBookMark/${idLogged}/${postId}`)
                 .then((response) => {
                     setBookMark(response.data)
-                    console.log()
                     console.log(response.data)
-                    console.log(id)
-                    console.log(postId)
 
                 })
                 .catch((error) => {
@@ -111,7 +108,7 @@ const Post = ({ navigation, route }) => {
             idPost: postId
         }
 
-        axios.post(`https://localhost:7124/api/Like/AddLike`, data)
+        axios.post(`http://bookmate00-001-site1.atempurl.com/api/Like/AddLike`, data)
             .then((response) => {
                 console.log(response);
                 setLiked(true);
@@ -124,7 +121,7 @@ const Post = ({ navigation, route }) => {
 
     const unLike = () => {
 
-        axios.delete(`https://localhost:7124/api/Like/unLike/${IdLoggedInUser}/${postId}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/Like/unLike/${IdLoggedInUser}/${postId}`)
             .then((response) => {
                 console.log(response);
                 setLiked(false);
@@ -142,7 +139,7 @@ const Post = ({ navigation, route }) => {
             idPost: postId
         }
 
-        axios.post(`https://localhost:7124/api/DisLike/AddDisLike`, data)
+        axios.post(`http://bookmate00-001-site1.atempurl.com/api/DisLike/AddDisLike`, data)
             .then((response) => {
                 console.log(response);
                 setDisLiked(true);
@@ -160,7 +157,7 @@ const Post = ({ navigation, route }) => {
             idPost: postId
         }
 
-        axios.post(`https://localhost:7124/api/BookMark/AddBookMark/`, data)
+        axios.post(`http://bookmate00-001-site1.atempurl.com/api/BookMark/AddBookMark/`, data)
             .then((response) => {
                 console.log(response.data);
                 setBookMark(true);
@@ -172,7 +169,7 @@ const Post = ({ navigation, route }) => {
 
     const unBookMark = () => {
 
-        axios.delete(`https://localhost:7124/api/BookMark/unBookMark/${IdLoggedInUser}/${postId}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/BookMark/unBookMark/${IdLoggedInUser}/${postId}`)
             .then((response) => {
                 console.log(response);
                 setBookMark(false);
@@ -184,7 +181,7 @@ const Post = ({ navigation, route }) => {
 
     const unDisLike = () => {
 
-        axios.delete(`https://localhost:7124/api/DisLike/unDisLike/${IdLoggedInUser}/${postId}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/DisLike/unDisLike/${IdLoggedInUser}/${postId}`)
             .then((response) => {
                 console.log(response);
                 setDisLiked(false);
@@ -198,79 +195,86 @@ const Post = ({ navigation, route }) => {
     return (
         <ScrollView contentContainerStyle={styles.scroll}>
 
+            <View style={{height:382}}>
             <ImageBackground
                 style={styles.backgroundImage}
-                source={require('../assets/images/CrimeGenre.png')}
-            ></ImageBackground>
+                source={require('../assets/images/backgroundBook.jpg')}
+            > 
+            </ImageBackground>
+            </View>
+
            <View style={styles.overlay}>
-           <Text style={styles.textGenre}>{post.genre}</Text>
-                {/* <MaterialCommunityIcons name="bookmark-check" color="#FFF" size={20} style={{position:'absolute', right:20}}/> */}
+                <Text style={styles.textGenre}>{post.genre}</Text>
                 {
                     IdLoggedInUser != post.userId ? (
                         bookMark ? (
-                            <MaterialCommunityIcons name="bookmark-check" color="#fff" size={20} style={{position:'absolute', right:20}} onPress={unBookMark} />
-                            
+                            <Pressable onPress={unBookMark} style={{position:'absolute', right:20}}>
+                                <MaterialCommunityIcons name="bookmark-check" color="#fff" size={22}/>
+                            </Pressable>
                         ) : (
-                            <MaterialCommunityIcons name="bookmark-multiple" color="#fff" size={20} style={{position:'absolute', right:20}} onPress={AddBookMark} />
+                            <Pressable onPress={AddBookMark} style={{position:'absolute', right:20}}>
+                                <MaterialCommunityIcons name="bookmark-multiple" color="#fff" size={22} />
+                            </Pressable>
                         )
                     ) : null  
                 }
            </View>
 
-            <Header
-                placement="left"
-                leftComponent={
-                    <>
-                        <MaterialCommunityIcons name="chevron-left" color="#333" size={18}
-                        onPress={() => navigation.replace('TabNavigator', { screen: screen, params: { id: post.userId, screen: screen } })} />
-                    </>
-                    
-                }
-                centerComponent={
-                    <View style={{ flexDirection: 'row', alignItems:'flex-end' }}>
+           <View style={styles.header}>
+            <View style={{flexDirection: 'row'}}>
+                <Pressable onPress={() => navigation.replace('TabNavigator', { screen: screen, params: { id: post.userId, screen: screen } })} >
+                    <MaterialCommunityIcons name="chevron-left" color="#333" size={22}/>
+                </Pressable>
 
-                    {/* <MaterialCommunityIcons name="thumb-up" color="#DCAF5A" size={20} />
-                    <Text style={{ fontSize: 13, marginRight: 5 }}>{likedCount}</Text>
-                    <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={20} />
-                    <Text style={{ fontSize: 13, marginRight: 5 }}>{dislikedCount}</Text> */}
-                    
+                <View style={{ flexDirection: 'row', alignItems:'flex-end', marginLeft:15 }}>                    
                     {liked ? (
                         <>
-                            <MaterialCommunityIcons name="thumb-up" color="#DCAF5A" size={20} onPress={unLike} />
-                            <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{likedCount}</Text>
-                            <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={20} />
-                            <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{dislikedCount}</Text>
+                            <Pressable onPress={unLike}>
+                                <MaterialCommunityIcons name="thumb-up" color="#DCAF5A" size={22} />
+                            </Pressable>
+                            <Text style={{ color: '#000', fontSize:12, marginRight:10 }}>{likedCount}</Text>
+                            <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={22} />
+                            <Text style={{ color: '#000', fontSize:12, marginRight:10 }}>{dislikedCount}</Text>
                         </>
 
                     ):disliked ? (
                     <>
-                        <MaterialCommunityIcons name="thumb-up-outline" color="#DCAF5A" size={20} />
-                        <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{likedCount}</Text>
-                        <MaterialCommunityIcons name="thumb-down" color="#DCAF5A" size={20} onPress={unDisLike} />
-                        <Text style={{ color: '#000', fontSize:12, marginRight: 5  }}>{dislikedCount}</Text>
+                        <MaterialCommunityIcons name="thumb-up-outline" color="#DCAF5A" size={22} />
+                        <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{likedCount}</Text>
+                        <Pressable onPress={unDisLike}>
+                            <MaterialCommunityIcons name="thumb-down" color="#DCAF5A" size={22} />
+                        </Pressable>
+                        <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{dislikedCount}</Text>
                     </>
                     )
                     :(
                     <>
-                        <MaterialCommunityIcons name="thumb-up-outline" color="#DCAF5A" size={20} onPress={onLike} />
-                        <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{likedCount}</Text>
-                        <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={20} onPress={onDisLike} />
-                        <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{dislikedCount}</Text>                        </>
+                        <Pressable onPress={onLike} >
+                            <MaterialCommunityIcons name="thumb-up-outline" color="#DCAF5A" size={22} />
+                        </Pressable>
+                        <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{likedCount}</Text>
+                        <Pressable onPress={onDisLike}>
+                            <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={22} />
+                        </Pressable>
+                        <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{dislikedCount}</Text>    
+                    </>
                     )}
 
 
-                    <MaterialCommunityIcons name="comment" color="#DCAF5A" size={20} />
+                    <MaterialCommunityIcons name="comment" color="#DCAF5A" size={22} />
                     <Text style={{ fontSize: 12 }}>{commentCount}</Text>
                 </View>
-                }
-                rightComponent={
-                    <Text style={{ color: 'gray', fontSize: 12, paddingRight:10 }}>{createdAt}</Text>
-                }
-                containerStyle={{ backgroundColor: '#fff' }} />    
-                
+                </View>
+                    <View>
+                        <Text style={{ color: 'gray', fontSize: 12, paddingRight:10 }}>{createdAt}</Text>
+                    </View>  
+            </View>  
+
+           
             <View style={styles.container}>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', paddingVertical:20}}>
+          
                 {post.image ? (
                     <Image
                         source={{ uri: post.image }}
@@ -291,16 +295,15 @@ const Post = ({ navigation, route }) => {
             <View>
                 <Text style={{ fontSize: 25, fontWeight: 'bold' }}>Preporuke knjige</Text>
                 <Text style={{ fontSize: 16, marginTop:10 }}>{post.bookTitle}</Text>
-                <Text style={{ fontSize: 16, color:'#656565',marginTop:5 }}>{post.author}</Text>
-                <Text style={{ marginVertical: 20, fontSize: 14, color:'#656565' }}>{post.experience}</Text>
-                <Text 
-                style={{ fontSize: 12, color:'#1b5ca1'}} 
+                <Text style={{ fontSize: 15, color:'#656565',marginTop:5 }}>{post.author}</Text>
+                <Text style={{ marginVertical: 20, fontSize: 15, color:'#656565' }}>{post.experience}</Text>
+                <Text style={{ fontSize: 12, color:'#1b5ca1'}} 
                 onPress={() => navigation.replace('TabNavigator', { screen: 'LikedList', params: { postId: post.postId, screen: screen } })}
-                >view {likedCount} likes</Text>
+                >view {likedCount} likes
+                </Text>
                 {post && post.postId && (
-                <Comment postId={post.postId} iduser={IdLoggedInUser} setcommentCount={setcommentCount} screen={screen} />
+                <Comment postId={post.postId} iduser={IdLoggedInUser} setcommentCount={setcommentCount} />
                 )}
-
             </View>
             </View>
         </ScrollView >
@@ -312,7 +315,6 @@ export default Post
 
 const styles = StyleSheet.create({
     scroll: {
-        flex: 1,
         justifyContent: 'flex-start',
         backgroundColor: '#fff',
         position:'relative'
@@ -320,6 +322,15 @@ const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 20,
         backgroundColor:'white'
+    },
+    header:{
+        backgroundColor:'#fff',
+        flexDirection: 'row',
+        padding:10,
+        justifyContent:'space-between',
+        alignItems:'center',
+        borderBottomWidth:0.5,
+        borderBottomColor:'#eee'
     },
     slika: {
         width: 60,
@@ -340,20 +351,21 @@ const styles = StyleSheet.create({
     },
     backgroundImage: {
         width: '100%',
-        height:'40vh',
+        height:'100%',
         resizeMode: 'cover',
+        justifyContent: 'center',
     },
     overlay: {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         width: '100%',
-        height:'40vh',
+        height:430,
         position:'absolute',
         justifyContent:'center',
         alignItems:'center',
     },
     textGenre:{
         color:'#fff',
-        fontSize:25,
+        fontSize:30,
         fontWeight:'bold'
     }
 });

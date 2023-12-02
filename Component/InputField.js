@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, Pressable, TextInput } from 'react-native';
 
 export default function InputField({
   label,
@@ -44,9 +44,9 @@ export default function InputField({
       {errorMessage && (
         <Text style={{ color: 'red' }}>{errorMessage}</Text>
       )}
-      <TouchableOpacity onPress={fieldButtonFunction}>
+      <Pressable onPress={fieldButtonFunction}>
         <Text style={{ color: '#EEBE68', fontWeight: '700' }}>{fieldButtonLabel}</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

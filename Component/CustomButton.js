@@ -1,9 +1,9 @@
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, Pressable } from 'react-native';
 import React from 'react';
 
 export default function CustomButton({ label, onPress }) {
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       style={{
         backgroundColor: '#EEBE68',
@@ -20,6 +20,6 @@ export default function CustomButton({ label, onPress }) {
         }}>
         {label}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

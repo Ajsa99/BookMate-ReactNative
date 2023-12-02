@@ -4,14 +4,12 @@ import {
     Text,
     StyleSheet,
     Image,
-    FlatList,
-    TouchableOpacity
+    Pressable
 } from 'react-native';
 import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Card from './Card';
 import { ScrollView } from 'react-native';
-import { MenuProvider } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -38,18 +36,9 @@ const Profil1 = ({ navigation, route }) => {
     const [followingCount, setFollowingCount] = useState('');
     const [postCount, setPostCount] = useState('');
 
-    const [dataActivities, setDataActivities] = useState([]);
-
     useEffect(() => {
 
         async function fetchData() {
-
-
-            setDataActivities([
-                { key: 'active', value: postCount, name: "book-open", route: 'Profil' },
-                { key: 'following', value: followingCount, name: "star", route: 'Followover' },
-                { key: 'followers', value: followersCount, name: "star-outline", route: 'Followover' },
-            ]);
 
             const IdUser = await AsyncStorage.getItem('Id');
 
@@ -57,7 +46,7 @@ const Profil1 = ({ navigation, route }) => {
             setId(id);
 
 
-            axios.get(`https://localhost:7124/api/User/${Id}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/User/${Id}`)
                 .then((response) => {
                     setFirstName(response.data.firstName);
                     setLastName(response.data.lastName)
@@ -66,7 +55,7 @@ const Profil1 = ({ navigation, route }) => {
 
                     navigation.setOptions({ headerTitle: response.data.nickName });
 
-                    axios.get(`https://localhost:7124/api/Post/GetPostsUsersidUser/${Id}`)
+                    axios.get(`http://bookmate00-001-site1.atempurl.com/api/Post/GetPostsUsersidUser/${Id}`)
                         .then((res) => {
 
                             setData(res.data);
@@ -74,7 +63,7 @@ const Profil1 = ({ navigation, route }) => {
                         })
                 })
 
-            axios.get(`https://localhost:7124/api/Followover/IsFollowing/${IdUser}/${Id}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Followover/IsFollowing/${IdUser}/${Id}`)
                 .then((response) => {
                     setFollowers(response.data);
                 })
@@ -83,7 +72,7 @@ const Profil1 = ({ navigation, route }) => {
                 });
 
             //korisnici koji me prate
-            axios.get(`https://localhost:7124/api/Followover/GetFollowersCountAsync/${Id}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Followover/GetFollowersCountAsync/${Id}`)
                 .then((res) => {
                     setFollowersCount(res.data)
                 })
@@ -92,7 +81,7 @@ const Profil1 = ({ navigation, route }) => {
                 });
 
             //korisnici koje pratim
-            axios.get(`https://localhost:7124/api/Followover/GetFollowingCountAsync/${Id}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Followover/GetFollowingCountAsync/${Id}`)
                 .then((res) => {
                     setFollowingCount(res.data)
                 })
@@ -105,18 +94,6 @@ const Profil1 = ({ navigation, route }) => {
         fetchData();
 
     }, [postCount, followingCount, followersCount]);
-
-    const activities = ({ item }) => (
-        <View style={styles.activityItem}>
-            <View style={{ marginRight: 10 }}>
-                <MaterialCommunityIcons name={item.name} color="#EEBE68" size={20} />
-            </View>
-            <Text style={styles.activityValue}>{item.value} </Text>
-            <TouchableOpacity onPress={() => navigation.replace('TabNavigator', { screen: item.route, params: { id: Id, initialOption: item.key, screen: 'Profil1' } })}>
-                <Text style={styles.activityLabel}>{item.key}</Text>
-            </TouchableOpacity>
-        </View >
-    );
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -135,7 +112,7 @@ const Profil1 = ({ navigation, route }) => {
             notification: false
         };
 
-        axios.post('https://localhost:7124/api/Followover/AddFollowover', data)
+        axios.post('http://bookmate00-001-site1.atempurl.com/api/Followover/AddFollowover', data)
             .then((response) => {
 
                 // Pozovi obaveštenje o praćenju
@@ -150,7 +127,7 @@ const Profil1 = ({ navigation, route }) => {
 
     const UnFollowing = () => {
 
-        axios.delete(`https://localhost:7124/api/Followover/Unfollow/${IdLoggedInUser}/${Id}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/Followover/Unfollow/${IdLoggedInUser}/${Id}`)
             .then((response) => {
                 console.log(response.data);
                 setFollowers(false)
@@ -159,7 +136,6 @@ const Profil1 = ({ navigation, route }) => {
     }
 
     return (
-        <MenuProvider>
             <View style={{ flex: 1 }}>
                 <Header
                     placement="left"
@@ -167,10 +143,10 @@ const Profil1 = ({ navigation, route }) => {
                         <Ionicons
                             name='arrow-back'
                             color='#333'
-                            size={18}
+                            size={25}
                             onPress={() => navigation.navigate('TabNavigator', { id: IdLoggedInUser, screen: screen })} />
                     }
-                    centerComponent={{ text: NickName, style: { color: '#333', fontWeight: 'bold' } }}
+                    centerComponent={{ text: NickName, style: { color: '#333', fontWeight: 'bold', fontSize:18 } }}
                     containerStyle={{ backgroundColor: '#FBFBFB' }}
                 />
                 <ScrollView
@@ -197,11 +173,35 @@ const Profil1 = ({ navigation, route }) => {
                                 </View>
                             )}
                         </View>
-                        <View>
-                            <FlatList
-                                data={dataActivities}
-                                renderItem={activities}
-                            />
+                        
+                        <View style={{flexDirection:'column'}}>
+                            <View style={styles.activityItem}>
+                                <View style={{ marginRight: 10 }}>
+                                    <MaterialCommunityIcons name="book-open" color="#EEBE68" size={20} />
+                                </View>
+                                <Text style={styles.activityValue}>{postCount} </Text>
+                                <Pressable>
+                                    <Text style={styles.activityLabel}>active</Text>
+                                </Pressable>
+                            </View>
+                            <View style={styles.activityItem}>
+                                <View style={{ marginRight: 10 }}>
+                                    <MaterialCommunityIcons name="star" color="#EEBE68" size={20} />
+                                </View>
+                                <Text style={styles.activityValue}>{followingCount} </Text>
+                                <Pressable onPress={() => navigation.replace('TabNavigator', { screen: 'Followover', params: { id, initialOption: 'following', screen: 'Profil1' } })}>
+                                    <Text style={styles.activityLabel}>following</Text>
+                                </Pressable>
+                            </View>
+                            <View style={styles.activityItem}>
+                                <View style={{ marginRight: 10 }}>
+                                    <MaterialCommunityIcons name="star-outline" color="#EEBE68" size={20} />
+                                </View>
+                                <Text style={styles.activityValue}>{followersCount} </Text>
+                                <Pressable onPress={() => navigation.replace('TabNavigator', { screen: 'Followover', params: { id, initialOption: 'following', screen: 'Profil1' } })}>
+                                    <Text style={styles.activityLabel}>followers</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
 
@@ -216,27 +216,27 @@ const Profil1 = ({ navigation, route }) => {
                             </View>
 
                             {followers == false ? (
-                                <TouchableOpacity
+                                <Pressable
                                     onPress={Following}
                                     style={styles.buttonfollow}
                                 >
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <MaterialCommunityIcons name="star-outline" color="white" size={22} />
-                                        <Text style={{ color: 'white', fontSize: '15', fontWeight:'bold' }}>Zaprati</Text>
+                                        <Text style={{ color: 'white', fontSize: 15, fontWeight:'bold' }}>Zaprati</Text>
                                     </View>
 
-                                </TouchableOpacity>
+                                </Pressable>
                             ) : followers == true ? (
-                                <TouchableOpacity
+                                <Pressable
                                     onPress={UnFollowing}
                                     style={styles.buttonfollow1}
                                 >
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <MaterialCommunityIcons name="star" color="#EEBE68" size={22} />
-                                        <Text style={{ color: '#EEBE68', fontSize: '15', fontWeight:'bold' }}>Pratim</Text>
+                                        <Text style={{ color: '#EEBE68', fontSize: 15, fontWeight:'bold' }}>Pratim</Text>
                                     </View>
 
-                                </TouchableOpacity>
+                                </Pressable>
                             ) : null}
                         </View>
                     ) : (
@@ -251,11 +251,11 @@ const Profil1 = ({ navigation, route }) => {
 
                     <View style={{ alignItems: 'center' }}>
                         <View style={styles.menuList}>
-                            <TouchableOpacity
+                            <Pressable
                                 style={styles.cell}
                             >
                                 <MaterialCommunityIcons name="book-open-page-variant" color="#EEBE68" size={23} />
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                         <View style={styles.viewList}>
                             {Array.isArray(data) && data.map((post) => (
@@ -265,7 +265,6 @@ const Profil1 = ({ navigation, route }) => {
                     </View>
                 </ScrollView>
             </View >
-        </MenuProvider >
     )
 }
 
@@ -280,7 +279,7 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 20
+        paddingTop: 20,
     },
     slika: {
         width: 160,
@@ -298,10 +297,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     activityItem: {
-        flex: 1,
-        alignItems: 'flex-end',
         margin: 10,
         flexDirection: 'row',
+        alignItems:'flex-end'
     },
     activityLabel: {
         fontSize: 12,
@@ -321,9 +319,9 @@ const styles = StyleSheet.create({
     },
     body: {
         width: '100%',
-        alignItems: 'center',
+        flexDirection:'row',
         justifyContent: 'space-around',
-        flexDirection: 'row',
+        alignItems: 'center',
         marginTop: 10,
     },
     info: {

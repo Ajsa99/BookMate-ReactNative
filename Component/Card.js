@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, Image, StyleSheet } from 'react-native'
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
@@ -10,7 +10,7 @@ export default function Card({ post, iduser, screen }) {
 
     const navigation = useNavigation();
 
-    console.log({ post })
+    // console.log({ post })
 
     const [IdLoggedInUser, setIdLoggedInUser] = useState(iduser);
     const [NickName, setNickName] = useState(post.nickName);
@@ -39,7 +39,7 @@ export default function Card({ post, iduser, screen }) {
             setIdLoggedInUser(id);
 
             //Liked
-            axios.get(`https://localhost:7124/api/Like/IsLiked/${IdLoggedInUser}/${post.postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Like/IsLiked/${IdLoggedInUser}/${post.postId}`)
                 .then((response) => {
                     setLiked(response.data)
                 })
@@ -47,7 +47,7 @@ export default function Card({ post, iduser, screen }) {
                     console.error('Error fetching data:', error);
                 })
                 
-            axios.get(`https://localhost:7124/api/Like/GetLikeCountByPostId/${post.postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Like/GetLikeCountByPostId/${post.postId}`)
                 .then((response) => {
                     setLikedCount(response.data)
                 })
@@ -55,14 +55,14 @@ export default function Card({ post, iduser, screen }) {
                     console.error('Error fetching data:', error);
                 })
             //DisLiked
-            axios.get(`https://localhost:7124/api/DisLike/IsDisLiked/${IdLoggedInUser}/${post.postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLike/IsDisLiked/${IdLoggedInUser}/${post.postId}`)
                 .then((response) => {
                     setDisLiked(response.data)
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
                 })
-            axios.get(`https://localhost:7124/api/DisLike/GetDisLikeCountByPostId/${post.postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLike/GetDisLikeCountByPostId/${post.postId}`)
                 .then((response) => {
                     setDisLikedCount(response.data)
                 })
@@ -70,7 +70,7 @@ export default function Card({ post, iduser, screen }) {
                     console.error('Error fetching data:', error);
                 })
             //Comment
-            axios.get(`https://localhost:7124/api/Comment/GetCommentCountByPostId/${post.postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/Comment/GetCommentCountByPostId/${post.postId}`)
                 .then((response) => {
                     setcommentCount(response.data)
                 })
@@ -79,12 +79,12 @@ export default function Card({ post, iduser, screen }) {
                 })
 
             //BookMark
-            axios.get(`https://localhost:7124/api/BookMark/IsBookMark/${IdLoggedInUser}/${post.postId}`)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/BookMark/IsBookMark/${IdLoggedInUser}/${post.postId}`)
                 .then((response) => {
                     setBookMark(response.data)
-                    console.log(response.data)
-                    console.log(IdLoggedInUser)
-                    console.log(post.postId)
+                    // console.log(response.data)
+                    // console.log(IdLoggedInUser)
+                    // console.log(post.postId)
 
                 })
                 .catch((error) => {
@@ -96,7 +96,7 @@ export default function Card({ post, iduser, screen }) {
     }, [post.postId])
 
     const onDelete = (idPost) => {
-        axios.delete(`https://localhost:7124/api/Post/DeletePost/${idPost}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/Post/DeletePost/${idPost}`)
             .then((response) => {
                 console.log(response.data)
             })
@@ -109,7 +109,7 @@ export default function Card({ post, iduser, screen }) {
             idPost: postId
         }
 
-        axios.post(`https://localhost:7124/api/Like/AddLike`, data)
+        axios.post(`http://bookmate00-001-site1.atempurl.com/api/Like/AddLike`, data)
             .then((response) => {
                 console.log(response);
                 setLiked(true);
@@ -122,7 +122,7 @@ export default function Card({ post, iduser, screen }) {
 
     const unLike = () => {
 
-        axios.delete(`https://localhost:7124/api/Like/unLike/${IdLoggedInUser}/${postId}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/Like/unLike/${IdLoggedInUser}/${postId}`)
             .then((response) => {
                 console.log(response);
                 setLiked(false);
@@ -140,7 +140,7 @@ export default function Card({ post, iduser, screen }) {
             idPost: postId
         }
 
-        axios.post(`https://localhost:7124/api/DisLike/AddDisLike`, data)
+        axios.post(`http://bookmate00-001-site1.atempurl.com/api/DisLike/AddDisLike`, data)
             .then((response) => {
                 console.log(response);
                 setDisLiked(true);
@@ -153,7 +153,7 @@ export default function Card({ post, iduser, screen }) {
 
     const unDisLike = () => {
 
-        axios.delete(`https://localhost:7124/api/DisLike/unDisLike/${IdLoggedInUser}/${postId}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/DisLike/unDisLike/${IdLoggedInUser}/${postId}`)
             .then((response) => {
                 console.log(response);
                 setDisLiked(false);
@@ -171,7 +171,7 @@ export default function Card({ post, iduser, screen }) {
             idPost: postId
         }
 
-        axios.post(`https://localhost:7124/api/BookMark/AddBookMark/`, data)
+        axios.post(`http://bookmate00-001-site1.atempurl.com/api/BookMark/AddBookMark/`, data)
             .then((response) => {
                 console.log(response.data);
                 setBookMark(true);
@@ -183,7 +183,7 @@ export default function Card({ post, iduser, screen }) {
 
     const unBookMark = () => {
 
-        axios.delete(`https://localhost:7124/api/BookMark/unBookMark/${IdLoggedInUser}/${postId}`)
+        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/BookMark/unBookMark/${IdLoggedInUser}/${postId}`)
             .then((response) => {
                 console.log(response);
                 setBookMark(false);
@@ -194,7 +194,6 @@ export default function Card({ post, iduser, screen }) {
     }
 
     return (
-        <View>
             <View style={styles.card}>
                 {/* <View style={{ width: '100%', alignItems: 'flex-end' }}>
                     {iduser == post.userId ? (
@@ -220,12 +219,12 @@ export default function Card({ post, iduser, screen }) {
 
                     <View style={{ width: '40%' }}>
                         <View style={styles.infoLabel}>
-                            <Text style={{ color: 'gray', fontSize:13 }}>Žanr: </Text>
-                            <Text style={{ color: 'black',  fontSize:13 }}>{zanr}</Text>
+                            <Text style={{ color: 'gray', fontSize:12 }}>Žanr: </Text>
+                            <Text style={{ color: 'black',  fontSize:14 }}>{zanr}</Text>
                         </View>
                         <View style={styles.infoLabel}>
-                            <Text style={{ color: 'gray',  fontSize:13 }}>Autor: </Text>
-                            <Text style={{ color: 'black',  fontSize:13 }}>{autor}</Text>
+                            <Text style={{ color: 'gray',  fontSize:12 }}>Autor: </Text>
+                            <Text style={{ color: 'black',  fontSize:14 }}>{autor}</Text>
                         </View>
                     </View>
 
@@ -240,11 +239,11 @@ export default function Card({ post, iduser, screen }) {
                     </Text>
 
                     <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray',  fontSize:13 }}>Moj dozivljaj: </Text>
-                        <Text style={{ color: 'black', fontSize:13 }}>{opis}</Text>
+                        <Text style={{ color: 'gray',  fontSize:12 }}>Moj dozivljaj: </Text>
+                        <Text style={{ color: 'black', fontSize:14 }}>{opis}</Text>
                     </Text>
                     <Text style={styles.time}>
-                        <Text style={{ color: 'gray' }}>{createdAt}</Text>
+                        <Text style={{ color: 'gray', fontSize:12 }}>{createdAt}</Text>
                     </Text>
                 </View>
 
@@ -256,40 +255,52 @@ export default function Card({ post, iduser, screen }) {
                     }}>
                         {liked ? (
                             <>
-                                <MaterialCommunityIcons name="thumb-up" color="#DCAF5A" size={20} onPress={unLike} />
-                                <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{likedCount}</Text>
+                                <Pressable onPress={unLike} >
+                                <MaterialCommunityIcons name="thumb-up" color="#DCAF5A" size={20} />
+                                </Pressable>
+                                <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{likedCount}</Text>
                                 <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={20} />
-                                <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{dislikedCount}</Text>
+                                <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{dislikedCount}</Text>
                             </>
 
                         ):disliked ? (
                         <>
                             <MaterialCommunityIcons name="thumb-up-outline" color="#DCAF5A" size={20} />
-                            <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{likedCount}</Text>
-                            <MaterialCommunityIcons name="thumb-down" color="#DCAF5A" size={20} onPress={unDisLike} />
-                            <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{dislikedCount}</Text>
+                            <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{likedCount}</Text>
+                            <Pressable onPress={unDisLike} >
+                            <MaterialCommunityIcons name="thumb-down" color="#DCAF5A" size={20}/>
+                            </Pressable>
+                            <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{dislikedCount}</Text>
                         </>
                         )
                         :(
                         <>
-                            <MaterialCommunityIcons name="thumb-up-outline" color="#DCAF5A" size={20} onPress={onLike} />
-                            <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{likedCount}</Text>
-                            <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={20} onPress={onDisLike} />
-                            <Text style={{ color: '#000', fontSize:12, marginRight:5  }}>{dislikedCount}</Text>                        
+                            <Pressable onPress={onLike}>
+                                <MaterialCommunityIcons name="thumb-up-outline" color="#DCAF5A" size={20} />
+                            </Pressable>
+                            <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{likedCount}</Text>
+                            <Pressable onPress={onDisLike}>
+                            <MaterialCommunityIcons name="thumb-down-outline" color="#DCAF5A" size={20} />
+                            </Pressable>
+                            <Text style={{ color: '#000', fontSize:12, marginRight:10  }}>{dislikedCount}</Text>                        
                         </>
                         )}
-                        {/* <MaterialCommunityIcons name="heart" color="#F44336" size={30} onPress={unLike} /> */}
-                        <MaterialCommunityIcons name="comment-multiple" color="#DCAF5A" size={20} 
-                        onPress={() => navigation.replace('TabNavigator', { screen: 'Post', params: { postId: postId, screen: screen } })} />
+                        <Pressable onPress={() => navigation.replace('TabNavigator', { screen: 'Post', params: { postId: postId, screen: screen } })} >
+                            <MaterialCommunityIcons name="comment-multiple" color="#DCAF5A" size={20} />
+                        </Pressable>
                         <Text style={{ color: '#000', fontSize:12  }}>{commentCount}</Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
                         {
                             iduser != post.userId ? (
                                 bookMark ? (
-                                    <MaterialCommunityIcons name="bookmark-check" color="#323232" size={20} onPress={unBookMark} />
+                                    <Pressable onPress={unBookMark}>
+                                        <MaterialCommunityIcons name="bookmark-check" color="#323232" size={20} />
+                                    </Pressable>
                                 ) : (
-                                    <MaterialCommunityIcons name="bookmark-multiple" color="#323232" size={20} onPress={AddBookMark} />
+                                    <Pressable onPress={AddBookMark}>
+                                        <MaterialCommunityIcons name="bookmark-multiple" color="#323232" size={20} />
+                                    </Pressable>
                                 )
                             ) : null  
                         }
@@ -299,20 +310,20 @@ export default function Card({ post, iduser, screen }) {
                     </View>
                 </View>
             </View>
-        </View >
     )
 }
 
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: 'white',
+        borderBottomWidth:2,
+        borderBottomColor:'#EEBE68',
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop:10,
-        marginBottom: 30,
-        borderRadius:10,
+        marginBottom: 25,
         position: 'relative',
+        backgroundColor:'#fff'
     },
     cardHeader: {
         flexDirection: 'row',
@@ -355,18 +366,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     ime: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
 
     },
     infoLabel: {
         fontSize: 13,
         flexDirection: 'row',
-        margin: 2
+        marginVertical: 5,
+        alignItems:'flex-end'
+
     },
     time: {
-        fontSize: 13,
-        textAlign: 'end'
+        textAlign: 'right'
     },
     bottomLine: {
         justifyContent: 'space-between',
@@ -375,13 +387,12 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 20,
         width: '96%',
-        height: 40,
+        height: 30,
         borderRadius: 50,
-        // backgroundColor: '#788B96',
         backgroundColor:'#fff',
         borderWidth:2,
         borderColor:'#EEBE68',
         position: 'absolute',
-        bottom: -20,
+        bottom: -15,
     },
 });

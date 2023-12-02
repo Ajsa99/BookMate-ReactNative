@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, Image, StyleSheet, FlatList, Pressable, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import { Header } from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -16,7 +16,7 @@ export default function LikedList({ route }) {
 
     useEffect(() => {
 
-        axios.get(`https://localhost:7124/api/Like/GetUsersLikeByPostId/${postId}`)
+        axios.get(`http://bookmate00-001-site1.atempurl.com/api/Like/GetUsersLikeByPostId/${postId}`)
             .then((response) => {
                 setUsersLiked(response.data)
                 console.log(response.data)
@@ -46,7 +46,7 @@ export default function LikedList({ route }) {
                 data={usersLiked}
                 keyExtractor={(item, index) => (item && item.id ? item.id.toString() : index.toString())}
                 renderItem={({ item, index }) => (
-                    <TouchableOpacity
+                    <Pressable
                         onPress={() => navigation.replace('TabNavigator', { screen: 'Profil1', params: { id: item.id, screen: screen } })}
                         key={item && item.id ? item.id.toString() : 'default'}
                         style={[styles.resultItem, index % 2 === 1 && styles.evenResultItem]}
@@ -64,7 +64,7 @@ export default function LikedList({ route }) {
                                 <Text style={{ color: '#aaa' }}>{item.firstName} {item.lastName}</Text>
                             </View>
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 )}
             />
         </ScrollView>

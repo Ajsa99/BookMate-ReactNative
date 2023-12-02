@@ -1,22 +1,17 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, TextInput, Image, FlatList } from "react-native";
+import { StyleSheet, View, Text, TextInput, Image, Pressable } from "react-native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import moment from 'moment';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-export default function Comment({ postId, iduser, setcommentCount, screen }) {
+export default function Comment({ postId, iduser, setcommentCount }) {
 
-    console.log('comment')
-    console.log({postId})
     const [nickName, setNickName] = useState('');
     const [image, setImage] = useState('');
-    const [data, setData] = useState([]);
-
+    const [data, setData] = useState([])
     const [text, setText] = useState('');
-
 
     useEffect(() => {
         async function fetchData() {
@@ -28,21 +23,21 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
                 setImage(image);
                 setNickName(nickname);
 
-                const commentsResponse = await axios.get(`https://localhost:7124/api/Comment/GetCommentsByPostId/${postId}`);
+                const commentsResponse = await axios.get(`http://bookmate00-001-site1.atempurl.com/api/Comment/GetCommentsByPostId/${postId}`);
                 const comments = commentsResponse.data.reverse();
     
                 // Napravite niz obećanja za lajkove i brojanje lajkova
                 const likePromises = comments.map(async (comment) => {
                     try {
-                        const isLikedCommentResponse = await axios.get(`https://localhost:7124/api/LikeComment/IsLikedComment/${iduser}/${comment.id}`);
-                        const likecommentCountResponse = await axios.get(`https://localhost:7124/api/LikeComment/GetLikeCommentCountByCommentId/${comment.id}`);
+                        const isLikedCommentResponse = await axios.get(`http://bookmate00-001-site1.atempurl.com/api/LikeComment/IsLikedComment/${iduser}/${comment.id}`);
+                        const likecommentCountResponse = await axios.get(`http://bookmate00-001-site1.atempurl.com/api/LikeComment/GetLikeCommentCountByCommentId/${comment.id}`);
 
-                        const isDisLikedCommentResponse = await axios.get(`https://localhost:7124/api/DisLikeComment/IsDisLikedComment/${iduser}/${comment.id}`);
-                        const dislikecommentCountResponse = await axios.get(`https://localhost:7124/api/DisLikeComment/GetDisLikeCommentCountByCommentId/${comment.id}`);
+                        const isDisLikedCommentResponse = await axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLikeComment/IsDisLikedComment/${iduser}/${comment.id}`);
+                        const dislikecommentCountResponse = await axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLikeComment/GetDisLikeCommentCountByCommentId/${comment.id}`);
     
-                        console.log("DisLike")
-                        console.log(isDisLikedCommentResponse)
-                        console.log(dislikecommentCountResponse)
+                        // console.log("DisLike")
+                        // console.log(isDisLikedCommentResponse)
+                        // console.log(dislikecommentCountResponse)
 
 
                         // Dodajte likeCount u objekat komentara
@@ -82,7 +77,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
         }
 
         try {
-            const response = await axios.post('https://localhost:7124/api/Comment/AddComment', data);
+            const response = await axios.post('http://bookmate00-001-site1.atempurl.com/api/Comment/AddComment', data);
 
             // // Povećaj commentCount kada se doda novi komentar
             setcommentCount((prevCommentCount) => prevCommentCount + 1);
@@ -117,7 +112,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
     const DeleteComment = async (idPost) => {
 
         try {
-            await axios.delete(`https://localhost:7124/api/Comment/DeleteComment/${idPost}`);
+            await axios.delete(`http://bookmate00-001-site1.atempurl.com/api/Comment/DeleteComment/${idPost}`);
 
             setData((prevData) => prevData.filter((comment) => comment.id !== idPost));
             console.log(`Komentar sa ID-jem ${idPost} je obrisan.`);
@@ -136,7 +131,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
         }
 
         try {
-             axios.post(`https://localhost:7124/api/LikeComment/AddLikeComment`, data)
+             axios.post(`http://bookmate00-001-site1.atempurl.com/api/LikeComment/AddLikeComment`, data)
             .then((response) => {
                 console.log(response);
                 setData((prevData) =>
@@ -158,7 +153,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
     const unLikeComment =  (idComment) => {
 
         try {
-            axios.delete(`https://localhost:7124/api/LikeComment/unLikeComment/${iduser}/${idComment}`)
+            axios.delete(`http://bookmate00-001-site1.atempurl.com/api/LikeComment/unLikeComment/${iduser}/${idComment}`)
             .then((response) => {
                 console.log(response);
                 setData((prevData) =>
@@ -185,7 +180,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
         }
 
         try {
-             axios.post(`https://localhost:7124/api/DisLikeComment/AddDisLikeComment`, data)
+             axios.post(`http://bookmate00-001-site1.atempurl.com/api/DisLikeComment/AddDisLikeComment`, data)
             .then((response) => {
                 console.log(response);
                 setData((prevData) =>
@@ -207,7 +202,7 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
     const unDisLikeComment =  (idComment) => {
 
         try {
-            axios.delete(`https://localhost:7124/api/DisLikeComment/unDisLikeComment/${iduser}/${idComment}`)
+            axios.delete(`http://bookmate00-001-site1.atempurl.com/api/DisLikeComment/unDisLikeComment/${iduser}/${idComment}`)
             .then((response) => {
                 console.log(response);
                 setData((prevData) =>
@@ -230,16 +225,15 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
         <View style={styles.comment}>
             <View style={styles.inputContainer}>
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, {textAlignVertical: 'top',height:100}]}
                     onChangeText={(text) => setText(text)}
                     placeholder="Dodaj komentar..."
                     placeholderTextColor='#aaa'
-                    multiline={true} // Postavka za više redova
-                    numberOfLines={4} // Možete postaviti broj redova koje želite prikazati unapred
+                    multiline // Postavka za više redova
                 />
-                <TouchableOpacity onPress={() => submitComment(postId)}>
+                <Pressable onPress={() => submitComment(postId)}>
                     <MaterialCommunityIcons name="lightbulb-on-outline" color="#1b5ca1" size={20} />
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
             {data.length !== 0 ? (
@@ -291,10 +285,10 @@ export default function Comment({ postId, iduser, setcommentCount, screen }) {
                             <Text style={{ color:'#656565', fontSize:13}}>{comment.text}</Text>
                         </View>
                         {comment.idUser == iduser ? (
-                        <View style={{ alignItems: 'end' }}>
-                            <TouchableOpacity onPress={() => DeleteComment(comment.id)}>
+                        <View style={{ alignItems: 'flex-end', width:'100%' }}>
+                            <Pressable onPress={() => DeleteComment(comment.id)}>
                                 <Text style={{ fontSize: 10, color: '#1b5ca1' }}>Delete</Text>
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                          ) : null}
                          
@@ -309,6 +303,7 @@ const styles = StyleSheet.create({
     comment: {
         flexDirection: 'column',
         backgroundColor: '#fff',
+        paddingBottom:15
     },
     commentHeading: {
         fontSize: 16,
@@ -350,13 +345,14 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingRight: 5,
         paddingTop:5,
-        marginVertical:5
+        marginVertical:5,
     },
     input: {
-        width: '100%',
-        padding: 5,
-        fontSize: 10,
-        textAlign: 'start',
+        flex:1,
+        width: '96%',
+        fontSize: 12,
+        textAlign: 'left',
+        paddingHorizontal: 10,
     },
 
 });

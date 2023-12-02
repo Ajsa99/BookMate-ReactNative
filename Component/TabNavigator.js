@@ -11,7 +11,6 @@ import Search from './Search';
 import FollowoverList from './FollowoverList';
 import LikedList from './LikedList';
 import Post from './Post';
-import Notifications from './Notifications';
 
 const Tab = createBottomTabNavigator();
 
@@ -36,7 +35,7 @@ export const TabNavigator = ({ navigation }) => {
             />
 
             <Tab.Screen
-                name="Add Post"
+                name="Add Book"
                 component={AddPost}
                 options={{
                     tabBarLabel: '',
@@ -84,20 +83,6 @@ export const TabNavigator = ({ navigation }) => {
                             style={{ paddingLeft: 5 }}
                             onPress={() => navigation.replace('TabNavigator', { screen: 'BookMate' })}
                         />
-                    ),
-                    tabBarButton: () => null
-                }}
-            />
-            < Tab.Screen
-                name="Notifications"
-                component={Notifications}
-                options={{
-                    headerLeft: () => (
-                        <Ionicons name="ios-arrow-back"
-                            size={25}
-                            color="#333"
-                            style={{ paddingLeft: 5 }}
-                            onPress={() => navigation.replace('TabNavigator', { screen: 'BookMate' })} />
                     ),
                     tabBarButton: () => null
                 }}

@@ -1,25 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Pressable, Image } from 'react-native';
 import { Header } from 'react-native-elements';
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import moment from 'moment'
+import moment from 'moment';
+import { RefreshControl } from 'react-native';
+
 
 export default function Notifications({ navigation }) {
 
     const [notifications, setNotifications] = useState([]);
+    const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(()=>{
+    const [Id, setId] = useState('');
 
-        async function fetchData() {
+        const fetchData = async () => {
 
-            const Id = await AsyncStorage.getItem('Id');
+            const IdUser = await AsyncStorage.getItem('Id');
+            setId(IdUser);
 
-            console.log(Id)
+            axios.get(`http://bookmate00-001-site1.atempurl.com/api/User/GetFollowersUsers/${IdUser}`)
+            .then((response) => {            
 
-            axios.get(`https://localhost:7124/api/User/GetFollowersUsers/${Id}`)
-            .then((response) => {
                     console.log(response.data);
 
                     const reversedData = response.data.reverse();
@@ -27,16 +30,32 @@ export default function Notifications({ navigation }) {
                 })
             .catch((error) => {
                 console.error('Error fetching data:', error);
+            })
+            .finally(() => {
+                setRefreshing(false);
             });
         }
         
+    useEffect(()=>{
         fetchData();
 
     },[])
-    
+
+    const UpdateNotifications=()=>{
+
+        navigation.replace('TabNavigator')
+            
+        axios.put(`http://bookmate00-001-site1.atempurl.com/api/Followover/UpdateNotifications/${Id}`)
+        .then((response) => {            
+                console.log(response.data);
+            })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+        })
+    }
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.container}>
             <Header
                 placement="left"
                 leftComponent={
@@ -44,20 +63,19 @@ export default function Notifications({ navigation }) {
                     <Ionicons
                         name='arrow-back'
                         color='#333'
-                        size={18}
-                        onPress={() => navigation.replace('TabNavigator', { screen: 'Post', params: { postId, screen: screen } })} />
+                        size={25}
+                        onPress={() => UpdateNotifications()} />
                 }
                 containerStyle={{ backgroundColor: '#fff' }}
             />
-
             <FlatList
                 data={notifications}
                 keyExtractor={(item, index) => (item && item.id ? item.id.toString() : index.toString())}
-                renderItem={({ item, index }) => (
-                    <TouchableOpacity
-                        onPress={() => navigation.replace('TabNavigator', { screen: 'Notifications' })}
+                renderItem={({ item }) => (
+                    <Pressable
+                        onPress={() => navigation.replace('TabNavigator', { screen: 'Profil1', params: { id: item.id, screen: 'Notifications' } })}
                         key={item && item.id ? item.id.toString() : 'default'}
-                        style={[styles.resultItem, index % 2 === 1 && styles.evenResultItem]}
+                        style={[styles.resultItem, item.notification === false && styles.evenResultItem && styles.evenResultItem]}
                     >
                         <View style={styles.resultContainer}>
                             <View style={styles.resultLeft}>
@@ -76,19 +94,21 @@ export default function Notifications({ navigation }) {
                            <Text style={{ color: '#aaa', fontSize:12 }}>{moment(item.createdAt).fromNow()}</Text>
 
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 )}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />
+                }
             />
-        </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'flex-start',
         backgroundColor: '#fff',
-        paddingHorizontal: 10,
+        height:'100%'
     },
     optionsContainer: {
         flexDirection: 'row',
@@ -161,7 +181,7 @@ const styles = StyleSheet.create({
     },
     resultLeft:{
         flexDirection: 'row',
-        alignItems:'center'
+        alignItems:'center',
     },
         textContainer: {
         marginLeft: 10,

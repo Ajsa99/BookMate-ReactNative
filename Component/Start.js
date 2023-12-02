@@ -4,11 +4,10 @@ import {
     Image,
     StyleSheet,
     Text,
-    TouchableOpacity,
+    Pressable,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 
 const Start = ({ navigation }) => {
 
@@ -17,10 +16,14 @@ const Start = ({ navigation }) => {
     useEffect(() => {
 
         async function fetchData() {
-
-            const nickname = await AsyncStorage.getItem('NickName');
-            setNickName(nickname);
+            try {
+                const nickname = await AsyncStorage.getItem('NickName');
+                setNickName(nickname);
+            } catch (error) {
+                console.error('Greška prilikom čitanja iz AsyncStorage:', error);
+            }
         }
+        
         fetchData();
 
     }, []);
@@ -30,10 +33,8 @@ const Start = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.imageView}>
                 <Image
-                    style={{
-                        resizeMode: 'center',
-                    }}
-                    source={require('../assets/images/start.png')}
+                    resizeMode='center'
+                    source={require('../assets/images/books.png')}
                 />
             </View>
 
@@ -43,14 +44,14 @@ const Start = ({ navigation }) => {
                     <Text>Kontaktirajte sa kolegama ljubiteljima knjiga</Text>
                 </View>
 
-                <TouchableOpacity
+                <Pressable
                     onPress={() => {
-                        !NickName ? navigation.replace('Login') : navigation.replace('TabNavigator');
+                        !NickName ? navigation.navigate('Login') : navigation.replace('TabNavigator');
                     }}
                     style={styles.circle}
                 >
                     <MaterialCommunityIcons name="redo" size={60} color="#fff" />
-                </TouchableOpacity>
+                </Pressable>
             </View>
 
         </View>
@@ -65,15 +66,18 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-start',
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        
     },
     imageView: {
+        justifyContent:'center',
+        alignItems:'center',
         height: '55%',
     },
     titleView: {
         alignItems: 'center',
         justifyContent: 'space-between',
-        height: '25%',
+        height: '20%',
     },
     title: {
         fontSize: 40,

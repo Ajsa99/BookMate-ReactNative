@@ -4,8 +4,7 @@ import {
     Text,
     StyleSheet,
     Image,
-    FlatList,
-    TouchableOpacity
+    Pressable
 } from 'react-native';
 import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -19,9 +18,6 @@ import { MenuProvider } from 'react-native-popup-menu';
 import { RefreshControl } from 'react-native';
 
 const Profil = ({ navigation }) => {
-
-
-    const [dataActivities, setDataActivities] = useState([]);
 
     const [id, setId] = useState('');
     const [NickName, setNickname] = useState('');
@@ -38,87 +34,65 @@ const Profil = ({ navigation }) => {
     const [dataBookMark, setDataBookMark] = useState([]);
     const [menuOption, setMenuOption] = useState('Post');
 
+    const fetchData = async () => {
+        const Id = await AsyncStorage.getItem('Id');
+        const nickname = await AsyncStorage.getItem('NickName');
+
+        setId(Id);
+        setNickname(nickname);
+
+
+        axios.get(`http://bookmate00-001-site1.atempurl.com/api/User/${Id}`)
+            .then((response) => {
+                setFirstName(response.data.firstName);
+                setLastName(response.data.lastName)
+                setImage(response.data.image);
+
+                //postovi
+                axios.get(`http://bookmate00-001-site1.atempurl.com/api/Post/GetPostsUsersidUser/${Id}`)
+                    .then((res) => {
+                        console.log({ res })
+                        setData(res.data);
+                        setPostCount(res.data.length);
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching data:', error);
+                    });
+
+                //korisnici koji me prate
+                axios.get(`http://bookmate00-001-site1.atempurl.com/api/Followover/GetFollowersCountAsync/${Id}`)
+                    .then((res) => {
+                        setFollowersCount(res.data)
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching data:', error);
+                    });
+
+                //korisnici koje pratim
+                axios.get(`http://bookmate00-001-site1.atempurl.com/api/Followover/GetFollowingCountAsync/${Id}`)
+                    .then((res) => {
+                        setFollowingCount(res.data)
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching data:', error);
+                    });
+
+                //sacuvani postovi(Book Mark)
+                axios.get(`http://bookmate00-001-site1.atempurl.com/api/BookMark/GetSavedPosts/${Id}`)
+                    .then((res) => {
+                        setDataBookMark(res.data);
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching data:', error);
+                    });
+            })
+      };
 
     useEffect(() => {
-
-
-        async function fetchData() {
-
-            setDataActivities([
-                { key: 'active', value: postCount, name: "book-open", route: 'Profil' },
-                { key: 'following', value: followingCount, name: "star", route: 'Followover' },
-                { key: 'followers', value: followersCount, name: "star-outline", route: 'Followover' },
-            ]);
-
-            const Id = await AsyncStorage.getItem('Id');
-            const nickname = await AsyncStorage.getItem('NickName');
-
-            setId(Id);
-            setNickname(nickname);
-
-
-            axios.get(`https://localhost:7124/api/User/${Id}`)
-                .then((response) => {
-                    setFirstName(response.data.firstName);
-                    setLastName(response.data.lastName)
-                    setImage(response.data.image);
-
-                    //postovi
-                    axios.get(`https://localhost:7124/api/Post/GetPostsUsersidUser/${Id}`)
-                        .then((res) => {
-                            console.log({ res })
-                            setData(res.data);
-                            setPostCount(res.data.length);
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching data:', error);
-                        });
-
-                    //korisnici koji me prate
-                    axios.get(`https://localhost:7124/api/Followover/GetFollowersCountAsync/${Id}`)
-                        .then((res) => {
-                            setFollowersCount(res.data)
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching data:', error);
-                        });
-
-                    //korisnici koje pratim
-                    axios.get(`https://localhost:7124/api/Followover/GetFollowingCountAsync/${Id}`)
-                        .then((res) => {
-                            setFollowingCount(res.data)
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching data:', error);
-                        });
-
-                    //sacuvani postovi(Book Mark)
-                    axios.get(`https://localhost:7124/api/BookMark/GetSavedPosts/${Id}`)
-                        .then((res) => {
-                            setDataBookMark(res.data);
-                        })
-                        .catch((error) => {
-                            console.error('Error fetching data:', error);
-                        });
-                })
-        }
 
         fetchData();
 
     }, [postCount, followingCount, followersCount]);
-
-
-    const activities = ({ item }) => (
-        <View style={styles.activityItem}>
-            <View style={{ marginRight: 10 }}>
-                <MaterialCommunityIcons name={item.name} color="#EEBE68" size={20} />
-            </View>
-            <Text style={styles.activityValue}>{item.value} </Text>
-            <TouchableOpacity onPress={() => navigation.replace('TabNavigator', { screen: item.route, params: { id, initialOption: item.key, screen: 'Profil' } })}>
-                <Text style={styles.activityLabel}>{item.key}</Text>
-            </TouchableOpacity>
-        </View >
-    );
 
     const onRefresh = () => {
         setRefreshing(true);
@@ -139,7 +113,7 @@ const Profil = ({ navigation }) => {
         <MenuProvider>
             <View style={{ flex: 1 }}>
                 <Header
-                    leftComponent={{ text: NickName, style: { color: '#333', fontWeight: 'bold' } }}
+                    leftComponent={{ text: NickName, style: { color: '#333', fontWeight: 'bold', fontSize:18 } }}
                     rightComponent={
                         <Menu>
                             <MenuTrigger>
@@ -151,7 +125,7 @@ const Profil = ({ navigation }) => {
                             </MenuTrigger>
 
                             <MenuOptions>
-                                <MenuOption onSelect={() => console.log('Opcija 1')}>
+                                <MenuOption onSelect={()=> navigation.replace('EditProfile')}>
                                     <Text>Izmeni profil</Text>
                                 </MenuOption>
                                 <MenuOption onSelect={removeNickname}>
@@ -186,11 +160,34 @@ const Profil = ({ navigation }) => {
                             </View>
                         )}
 
-                        <View>
-                            <FlatList
-                                data={dataActivities}
-                                renderItem={activities}
-                            />
+                        <View style={{flexDirection:'column'}}>
+                            <View style={styles.activityItem}>
+                                <View style={{ marginRight: 10 }}>
+                                    <MaterialCommunityIcons name="book-open" color="#EEBE68" size={20} />
+                                </View>
+                                <Text style={styles.activityValue}>{postCount} </Text>
+                                <Pressable>
+                                    <Text style={styles.activityLabel}>active</Text>
+                                </Pressable>
+                            </View>
+                            <View style={styles.activityItem}>
+                                <View style={{ marginRight: 10 }}>
+                                    <MaterialCommunityIcons name="star" color="#EEBE68" size={20} />
+                                </View>
+                                <Text style={styles.activityValue}>{followingCount} </Text>
+                                <Pressable onPress={() => navigation.replace('TabNavigator', { screen: 'Followover', params: { id, initialOption: 'following', screen: 'Profil' } })}>
+                                    <Text style={styles.activityLabel}>following</Text>
+                                </Pressable>
+                            </View>
+                            <View style={styles.activityItem}>
+                                <View style={{ marginRight: 10 }}>
+                                    <MaterialCommunityIcons name="star-outline" color="#EEBE68" size={20} />
+                                </View>
+                                <Text style={styles.activityValue}>{followersCount} </Text>
+                                <Pressable onPress={() => navigation.replace('TabNavigator', { screen: 'Followover', params: { id, initialOption: 'followers', screen: 'Profil' } })}>
+                                    <Text style={styles.activityLabel}>followers</Text>
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
 
@@ -205,21 +202,21 @@ const Profil = ({ navigation }) => {
 
                     <View style={{ alignItems: 'center' }}>
                         <View style={styles.menuList}>
-                            <TouchableOpacity
+                            <Pressable
                                 onPress={() => setMenuOption('Post')}
                                 style={styles.cell}> 
                                 <MaterialCommunityIcons name="book-open-page-variant" color="#EEBE68" size={23} />
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => { navigation.replace('TabNavigator', { screen: 'Add Post' }) }}
+                            </Pressable>
+                            <Pressable
+                                onPress={() => { navigation.replace('TabNavigator', { screen: 'Add Book' }) }}
                                 style={styles.cell}>
                                 <MaterialCommunityIcons name="book-plus" color="#EEBE68" size={23} />
-                            </TouchableOpacity>
-                            <TouchableOpacity
+                            </Pressable>
+                            <Pressable
                                 onPress={() => setMenuOption('BookMark')}
                                 style={styles.cell1} >
                                 <MaterialCommunityIcons name="bookshelf" color="#EEBE68" size={23} />
-                            </TouchableOpacity>
+                            </Pressable>
                         </View>
                         <View style={styles.viewList}>
                             {menuOption == 'Post' ? (
@@ -233,10 +230,9 @@ const Profil = ({ navigation }) => {
                         </View>
                     </View>
                 </ScrollView>
-            </View >
+            </View>
         </MenuProvider >
-
-    )
+    );
 }
 
 export default Profil;
@@ -268,10 +264,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     activityItem: {
-        flex: 1,
-        alignItems: 'flex-end',
         margin: 10,
         flexDirection: 'row',
+        alignItems:'flex-end'
     },
     activityLabel: {
         fontSize: 12,
@@ -334,8 +329,7 @@ const styles = StyleSheet.create({
     },
     viewList: {
         width:'100%',
-        backgroundColor: '#FBFBFB',
-        paddingBottom: 25
+        paddingBottom: 25,
     },
     scroll: {
         backgroundColor: 'red',

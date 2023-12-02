@@ -4,8 +4,7 @@ import {
     SafeAreaView,
     View,
     Text,
-    TextInput,
-    TouchableOpacity,
+    Pressable,
     StyleSheet,
 } from 'react-native';
 import * as Yup from 'yup';
@@ -49,11 +48,11 @@ const Login = ({ navigation }) => {
                 };
 
                 axios
-                    .post('https://localhost:7124/login', data)
+                    .post('http://bookmate00-001-site1.atempurl.com/login', data)
                     .then((response) => {
                         console.log(response.data);
                         // Sačuvajte podatke u AsyncStorage
-                        AsyncStorage.setItem('Id', response.data.id);
+                        AsyncStorage.setItem('Id', response.data.id.toString());
                         AsyncStorage.setItem('NickName', response.data.nickName);
                         AsyncStorage.setItem('userToken', response.data.token);
                         AsyncStorage.setItem('Image', response.data.image);
@@ -119,13 +118,11 @@ const Login = ({ navigation }) => {
                     value={Password}
                     inputType="password"
                     onChangeText={(text) => setPassword(text)}
-                    fieldButtonLabel={"Forgot?"}
+                    // fieldButtonLabel={"Forgot?"}
                     fieldButtonFunction={() => { }}
                     errorMessage={errors.Password}
                 />
 
-
-                {/* <CustomButton label={"Login"} onPress={() => { navigation.navigate('TabNavigator') }} /> */}
                 <CustomButton label={"Login"} onPress={onSubmit} />
 
                 <View
@@ -135,9 +132,9 @@ const Login = ({ navigation }) => {
                         marginBottom: 30,
                     }}>
                     <Text>New to the app?</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                    <Pressable onPress={() => navigation.navigate('Register')}>
                         <Text style={{ color: '#EEBE68', fontWeight: '700' }}> Register</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
             </View>
         </SafeAreaView >

@@ -1,12 +1,12 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Pressable, Image, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Header } from 'react-native-elements';
 
 export default function FollowingList({ navigation, route }) {
 
-    const { id, initialOption, screen } = route.params || {};;
+    const { id, initialOption, screen } = route.params || {};
 
     const [Id, setId] = useState(id);
 
@@ -34,12 +34,12 @@ export default function FollowingList({ navigation, route }) {
 
         const fetchData = async () => {
             try {
-                await axios.get(`https://localhost:7124/api/User/GetFollowersUsers/${Id}`)
+                await axios.get(`http://bookmate00-001-site1.atempurl.com/api/User/GetFollowersUsers/${Id}`)
                     .then((response) => {
                         setFollowersUsers(response.data);
                         setFollowersCount(response.data.length)
                     })
-                await axios.get(`https://localhost:7124/api/User/GetFollowingUsers/${Id}`)
+                await axios.get(`http://bookmate00-001-site1.atempurl.com/api/User/GetFollowingUsers/${Id}`)
                     .then((response) => {
                         setFollowingUsers(response.data);
                         setFollowingCount(response.data.length);
@@ -64,7 +64,7 @@ export default function FollowingList({ navigation, route }) {
                         <Ionicons
                             name='arrow-back'
                             color='#333'
-                            size={18}
+                            size={23}
                             onPress={() => navigation.navigate('TabNavigator', { screen: screen, params: { id: Id, screen: screen } })}
                         />
                     </>
@@ -73,7 +73,7 @@ export default function FollowingList({ navigation, route }) {
             />
             <View style={styles.optionsContainer}>
                 {searchOptions.map((item) => (
-                    <TouchableOpacity
+                    <Pressable
                         key={item.value}
                         onPress={() => setSearchType(item.value)}
                         style={[styles.optionButton, searchType === item.value && styles.selectedOption]}
@@ -81,14 +81,14 @@ export default function FollowingList({ navigation, route }) {
                         <Text style={[styles.optionText, searchType === item.value && styles.selectedText]}>
                             {item.label} ({item.value === 'followers' ? followersCount : followingCount})
                         </Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 ))}
             </View>
             <FlatList
                 data={dataToRender}
                 keyExtractor={(item) => (item && item.id ? item.id.toString() : 'default')}
                 renderItem={({ item, index }) => (
-                    <TouchableOpacity
+                    <Pressable
                         onPress={() => navigation.replace('TabNavigator', { screen: 'Profil1', params: { id: item.id, screen: screen } })}
                         key={item && item.id ? item.id.toString() : 'default'}
                         style={[styles.resultItem, index % 2 === 1 && styles.evenResultItem]}
@@ -106,7 +106,7 @@ export default function FollowingList({ navigation, route }) {
                                 <Text style={{ color: '#aaa' }}>{item.firstName} {item.lastName}</Text>
                             </View>
                         </View>
-                    </TouchableOpacity>
+                    </Pressable>
                 )}
             />
         </View>
@@ -195,22 +195,3 @@ const styles = StyleSheet.create({
     },
 
 });
-
-// import { View, Text } from "react-native";
-
-// export default function FollowingList({ navigation }) {
-//     return (
-//         <View>
-//             <Text>FollowingList</Text>
-//             <Text
-//                 style={{ color: 'green' }}
-//                 onPress={() => navigation.goBack()}
-//             > Back</Text>
-//             <Text
-//                 style={{ color: 'red' }}
-//                 onPress={() => navigation.navigate('SharedProfil1', { screen: 'Profil1' })}
-
-//             > Next -- Profil1</Text>
-//         </View>
-//     )
-// }

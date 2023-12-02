@@ -5,10 +5,8 @@ import {
   ScrollView,
   View,
   Text,
-  TouchableOpacity,
   Image,
-  CheckBox,
-  Alert
+  Pressable
 } from 'react-native';
 import * as Yup from 'yup';
 import InputField from './InputField';
@@ -19,8 +17,7 @@ import CustomButton from './CustomButton';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { app } from '../config';
 import { v4 as uuidv4 } from 'uuid';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
+import CheckBox from 'expo-checkbox';
 
 const Register = ({ navigation }) => {
 
@@ -139,9 +136,9 @@ const Register = ({ navigation }) => {
         console.log(data);
 
         axios
-          .post('https://localhost:7124/register', data)
+          .post('http://bookmate00-001-site1.atempurl.com/register', data)
           .then((response) => {
-            Alert.alert("Successful registration!");
+            // Alert.alert("Successful registration!");
             navigation.replace('Login');
           }).catch((error) => {
             if (error.response) {
@@ -173,11 +170,10 @@ const Register = ({ navigation }) => {
         <View style={{ alignItems: 'center' }}>
           <Image
             style={{
-              resizeMode: 'center',
-              height: 200,
-              width: 300,
+              height:200
             }}
-            source={require('../assets/images/create.png')}
+            resizeMode="contain"
+            source={require('../assets/images/booksreg.png')}
           />
         </View>
 
@@ -187,7 +183,7 @@ const Register = ({ navigation }) => {
             fontSize: 28,
             fontWeight: '500',
             color: '#333',
-            margin: 30,
+            marginBottom: 30,
           }}>
           Register
         </Text>
@@ -310,12 +306,12 @@ const Register = ({ navigation }) => {
           errorMessage={errors.PPassword}
         />
 
-        <TouchableOpacity onPress={pickImage} style={{ alignItems: 'center', flexDirection: 'row' }}>
+        <Pressable onPress={pickImage} style={{ alignItems: 'center', flexDirection: 'row' }}>
           <View style={{ alignItems: 'start', marginBottom: 15 }} >
             <Ionicons name="ios-camera" size={40} color="#666" />
           </View>
           <Text style={{ color: 'red' }}>{errors.profileImage}</Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
           <CheckBox
@@ -325,7 +321,7 @@ const Register = ({ navigation }) => {
               setProfileImage(null); // Brisati profilnu sliku kada se prebaci na podrazumevanu
             }}
           />
-          <Text>Ne želim profilnu sliku</Text>
+          <Text> Ne želim profilnu sliku!</Text>
         </View>
 
         <CustomButton label={'Register'} onPress={onSubmit} />
@@ -337,9 +333,9 @@ const Register = ({ navigation }) => {
             marginBottom: 30,
           }}>
           <Text>Already registered?</Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Pressable onPress={() => navigation.goBack()}>
             <Text style={{ color: '#EEBE68', fontWeight: '700' }}> Login</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView >

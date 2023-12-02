@@ -1,10 +1,13 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable, FlatList, Image } from 'react-native';
 import Card from "./Card";
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Search = ({ navigation }) => {
+
+    const [Id, setId] = useState('');
     const [searchType, setSearchType] = useState('user');
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -20,36 +23,45 @@ const Search = ({ navigation }) => {
         setSearchResults([]);
     }, [searchType]);
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
+
+        const IdUser = await AsyncStorage.getItem('Id');
+
+        setId(IdUser);
+
         let apiUrl = '';
 
         switch (searchType) {
             case 'user':
-                apiUrl = `https://localhost:7124/api/User/search?searchTerm=${searchText}`;
+                apiUrl = `http://bookmate00-001-site1.atempurl.com/api/User/search?searchTerm=${searchText}`;
                 break;
             case 'bookTitle':
-                apiUrl = `https://localhost:7124/api/Post/SearchByBookTitle/${searchText}`;
+                apiUrl = `http://bookmate00-001-site1.atempurl.com/api/Post/SearchByBookTitle/${searchText}`;
                 break;
             case 'author':
-                apiUrl = `https://localhost:7124/api/Post/SearchByAuthor/${searchText}`;
+                apiUrl = `http://bookmate00-001-site1.atempurl.com/api/Post/SearchByAuthor/${searchText}`;
                 break;
             case 'genre':
-                apiUrl = `https://localhost:7124/api/Post/SearchByGenre/${searchText}`;
+                apiUrl = `http://bookmate00-001-site1.atempurl.com/api/Post/SearchByGenre/${searchText}`;
                 break;
             default:
                 break;
         }
 
         axios.get(apiUrl)
-            .then((response) => {
-                setSearchResults(response.data.reverse());
-            })
-            .catch((error) => {
-                if (error) {
-                    console.log('Nema rezultata.');
-                    setSearchResults([]);
-                }
-            });
+        .then((response) => {
+            setSearchResults(response.data.reverse());
+        })
+        .catch((error)=>{
+            if (error.response && error.response.status === 404) {
+                // Obrada specifične 404 greške
+                console.log('Nema rezultata pretrage.');
+            } else {
+                console.error('Došlo je do greške:', error.message);
+            }
+            setSearchResults([]);
+        })
+            
     };
 
 
@@ -58,13 +70,13 @@ const Search = ({ navigation }) => {
 
             <View style={styles.optionsContainer}>
                 {searchOptions.map((item) => (
-                    <TouchableOpacity
+                    <Pressable
                         key={item.value}
                         onPress={() => setSearchType(item.value)}
                         style={[styles.optionButton, searchType === item.value && styles.selectedOption]}
                     >
                         <Text style={[styles.optionText, searchType === item.value && styles.selectedText]}>{item.label}</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                 ))}
             </View>
 
@@ -90,10 +102,9 @@ const Search = ({ navigation }) => {
                 renderItem={({ item, index }) => (
                     <>
                         {searchType === 'user' ? (
-                            <TouchableOpacity
+                            <Pressable
                                 onPress={() => navigation.replace('TabNavigator', { screen: 'Profil1', params: { id: item.id, screen: 'Search' } })}
-
-                                keyExtractor={(item) => item.id.toString()}
+                                key={item.id}
                                 style={[styles.resultItem, index % 2 === 1 && styles.evenResultItem]}>
                                 <View style={styles.resultContainer}>
                                     {item.image ? (<Image
@@ -109,10 +120,10 @@ const Search = ({ navigation }) => {
                                         <Text style={{ color: '#aaa' }}>{item.firstName} {item.lastName}</Text>
                                     </View>
                                 </View>
-                            </TouchableOpacity>
+                            </Pressable>
 
                         ) : (
-                            <Card post={item} />
+                            <Card post={item} iduser={Id} screen="Search" />
                         )}
                     </>
                 )
@@ -129,13 +140,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         backgroundColor: '#fff',
-        paddingHorizontal: 10,
     },
     optionsContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginBottom: 20,
         width: '100%',
+        paddingHorizontal: 10,
     },
     optionButton: {
         flex: 1,
@@ -159,13 +170,13 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     input: {
-        width: '100%',
+        width: '94%',
         borderBottomWidth: 1,
         borderColor: '#ccc',
         padding: 8,
         marginBottom: 12,
         borderRadius: 8,
-        textAlign: 'start',
+        textAlign: 'left',
         color: '#333',
     },
     resultItem: {
@@ -180,6 +191,7 @@ const styles = StyleSheet.create({
         color: '#aaa',
         fontSize: 10,
         padding: 8,
+        paddingLeft: 20,
     },
     slika: {
         width: 50,
