@@ -33,7 +33,10 @@ const Start = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.imageView}>
                 <Image
-                    resizeMode='center'
+                    style={{
+                        height:300
+                    }}
+                    resizeMode="contain"
                     source={require('../assets/images/books.png')}
                 />
             </View>
@@ -41,7 +44,7 @@ const Start = ({ navigation }) => {
             <View style={styles.titleView}>
                 <View style={{ alignItems: 'center' }}>
                     <Text style={styles.title}>BookMate</Text>
-                    <Text>Kontaktirajte sa kolegama ljubiteljima knjiga</Text>
+                    <Text>Contact fellow book enthusiasts</Text>
                 </View>
 
                 <Pressable
@@ -72,12 +75,13 @@ const styles = StyleSheet.create({
     imageView: {
         justifyContent:'center',
         alignItems:'center',
-        height: '55%',
+        height: '50%',
     },
     titleView: {
         alignItems: 'center',
         justifyContent: 'space-between',
         height: '20%',
+        width:'100%'
     },
     title: {
         fontSize: 40,

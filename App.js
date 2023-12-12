@@ -7,6 +7,7 @@ import Login from './Component/Login';
 import Register from './Component/Register';
 import Notifications from './Component/Notifications';
 import EditProfile from './Component/EditProfile';
+import { StatusBar } from 'expo-status-bar';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,8 @@ const UpdateNotifications=()=>{
 
 export default function App() {
   return (
+    <>
+    <StatusBar style='auto'/>
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Start">
         <Stack.Screen name="Start"
@@ -65,5 +68,6 @@ export default function App() {
         />
       </Stack.Navigator>
     </NavigationContainer>
+    </>
   );
 }

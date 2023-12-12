@@ -22,7 +22,7 @@ const AddPost = ({ navigation }) => {
         'Memoir', 'Mental Health', 'Mystery', 'Non-fiction', 'Philosophy', 'Poetry',
         'Political', 'Psychology', 'Romance', 'Satire', 'Science Fiction', 'Sci-Fi',
         'Self-help', 'Short Stories', 'Spirituality', 'Suspense', 'Technology',
-        'Thriller', 'Thriller', 'Travel', 'True Crime', 'Western', 'Young Adult',
+        'Thriller', 'Travel', 'True Crime', 'Western', 'Young Adult',
       ];
       
     const schema = Yup.object().shape({
@@ -130,7 +130,7 @@ const AddPost = ({ navigation }) => {
                 style={[styles.input,{textAlignVertical: 'top',height:100, borderWidth:1 }]}
                 onChangeText={(text) => setExperience(text)}
                 multiline
-                placeholder='Call me the books....'
+                placeholder='My impression of the book...'
                 placeholderTextColor='#ccc'
             />
             <Text style={{ color: 'red' }}>{errors.Experience}</Text>
@@ -141,7 +141,7 @@ const AddPost = ({ navigation }) => {
                 style={styles.button}>
                 <Text
                     style={styles.buttonText}>
-                    Dodaj post
+                    Share
                 </Text>
             </Pressable>
 

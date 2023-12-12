@@ -138,7 +138,7 @@ const Register = ({ navigation }) => {
         axios
           .post('http://bookmate00-001-site1.atempurl.com/register', data)
           .then((response) => {
-            // Alert.alert("Successful registration!");
+            Alert.alert("Successful registration!");
             navigation.replace('Login');
           }).catch((error) => {
             if (error.response) {
@@ -321,7 +321,7 @@ const Register = ({ navigation }) => {
               setProfileImage(null); // Brisati profilnu sliku kada se prebaci na podrazumevanu
             }}
           />
-          <Text> Ne želim profilnu sliku!</Text>
+          <Text> I don't want a profile picture!</Text>
         </View>
 
         <CustomButton label={'Register'} onPress={onSubmit} />

@@ -36,7 +36,7 @@ export default function LikedList({ route }) {
                     <Ionicons
                         name='arrow-back'
                         color='#333'
-                        size={18}
+                        size={25}
                         onPress={() => navigation.replace('TabNavigator', { screen: 'Post', params: { postId, screen: screen } })} />
                 }
                 containerStyle={{ backgroundColor: '#fff' }}

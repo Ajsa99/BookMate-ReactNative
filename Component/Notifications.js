@@ -87,7 +87,7 @@ export default function Notifications({ navigation }) {
                                 </View>
                             )}
                             <View style={styles.textContainer}>
-                                    <Text>Pocinje vas pratiti</Text>
+                                    <Text>Started following you</Text>
                                     <Text style={{color: '#555'}}>{item.nickName}</Text>
                            </View>
                            </View>

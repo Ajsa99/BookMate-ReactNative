@@ -5,22 +5,21 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { Alert } from 'react-native';
 
 export default function Card({ post, iduser, screen }) {
 
     const navigation = useNavigation();
-
-    // console.log({ post })
 
     const [IdLoggedInUser, setIdLoggedInUser] = useState(iduser);
     const [NickName, setNickName] = useState(post.nickName);
     const [image, setImage] = useState(post.image);
     const [postId, setIdPost] = useState(post.postId);
 
-    const [zanr, setZanr] = useState(post.genre);
-    const [naziv, setNaziv] = useState(post.bookTitle);
-    const [autor, setAutor] = useState(post.author);
-    const [opis, setOpis] = useState(post.experience);
+    const [genre, setGenre] = useState(post.genre);
+    const [name, setName] = useState(post.bookTitle);
+    const [author, setAuthor] = useState(post.author);
+    const [description, setDescription] = useState(post.experience);
     const [createdAt, setCreatedAt] = useState(
         moment(post.createdAt).fromNow()
     );
@@ -82,10 +81,6 @@ export default function Card({ post, iduser, screen }) {
             axios.get(`http://bookmate00-001-site1.atempurl.com/api/BookMark/IsBookMark/${IdLoggedInUser}/${post.postId}`)
                 .then((response) => {
                     setBookMark(response.data)
-                    // console.log(response.data)
-                    // console.log(IdLoggedInUser)
-                    // console.log(post.postId)
-
                 })
                 .catch((error) => {
                     console.error('Error fetching data:', error);
@@ -95,12 +90,36 @@ export default function Card({ post, iduser, screen }) {
         fetchData();
     }, [post.postId])
 
+
     const onDelete = (idPost) => {
-        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/Post/DeletePost/${idPost}`)
-            .then((response) => {
-                console.log(response.data)
-            })
-    }
+
+        Alert.alert(
+            "Confirmation",
+            "Are you sure you want to delete this post?",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Post deletion canceled."),
+                    style: "cancel"
+                },
+                {
+                    text: "OK",
+                    onPress: () => {
+
+                        axios.delete(`http://bookmate00-001-site1.atempurl.com/api/Post/DeletePost/${idPost}`)
+                            .then((response) => {
+                                console.log(response.data);
+                            })
+                            .catch((error) => {
+                                console.error(error);
+                            });
+                    }
+                }
+            ],
+            { cancelable: false }
+        );
+    };
+
 
     const onLike = () => {
 
@@ -192,14 +211,10 @@ export default function Card({ post, iduser, screen }) {
                 console.error(error);
             });
     }
+    
 
     return (
             <View style={styles.card}>
-                {/* <View style={{ width: '100%', alignItems: 'flex-end' }}>
-                    {iduser == post.userId ? (
-                        <MaterialCommunityIcons name="delete" color="#ccc" size={20} onPress={() => onDelete(postId)} />
-                    ) : null}
-                </View> */}
                 <View style={styles.cardHeader}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', width: '60%' }}>
 
@@ -219,12 +234,12 @@ export default function Card({ post, iduser, screen }) {
 
                     <View style={{ width: '40%' }}>
                         <View style={styles.infoLabel}>
-                            <Text style={{ color: 'gray', fontSize:12 }}>Žanr: </Text>
-                            <Text style={{ color: 'black',  fontSize:14 }}>{zanr}</Text>
+                            <Text style={{ color: 'gray', fontSize:12 }}>Genre: </Text>
+                            <Text style={{ color: 'black',  fontSize:14 }}>{genre}</Text>
                         </View>
                         <View style={styles.infoLabel}>
-                            <Text style={{ color: 'gray',  fontSize:12 }}>Autor: </Text>
-                            <Text style={{ color: 'black',  fontSize:14 }}>{autor}</Text>
+                            <Text style={{ color: 'gray',  fontSize:12 }}>Author: </Text>
+                            <Text style={{ color: 'black',  fontSize:14 }}>{author}</Text>
                         </View>
                     </View>
 
@@ -234,13 +249,13 @@ export default function Card({ post, iduser, screen }) {
 
                     <Text style={styles.infoLabel}>
                         <View style={{ textAlign: 'start', width: '100%' }}>
-                            <Text style={{ color: 'black', fontSize: 16,  fontWeight: 'bold' }}>{naziv}</Text>
+                            <Text style={{ color: 'black', fontSize: 16,  fontWeight: 'bold' }}>{name}</Text>
                         </View>
                     </Text>
 
                     <Text style={styles.infoLabel}>
-                        <Text style={{ color: 'gray',  fontSize:12 }}>Moj dozivljaj: </Text>
-                        <Text style={{ color: 'black', fontSize:14 }}>{opis}</Text>
+                        <Text style={{ color: 'gray',  fontSize:12 }}>My impression: </Text>
+                        <Text style={{ color: 'black', fontSize:14 }}>{description}</Text>
                     </Text>
                     <Text style={styles.time}>
                         <Text style={{ color: 'gray', fontSize:12 }}>{createdAt}</Text>

@@ -118,7 +118,6 @@ const Login = ({ navigation }) => {
                     value={Password}
                     inputType="password"
                     onChangeText={(text) => setPassword(text)}
-                    // fieldButtonLabel={"Forgot?"}
                     fieldButtonFunction={() => { }}
                     errorMessage={errors.Password}
                 />

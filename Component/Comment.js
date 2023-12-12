@@ -34,11 +34,6 @@ export default function Comment({ postId, iduser, setcommentCount }) {
 
                         const isDisLikedCommentResponse = await axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLikeComment/IsDisLikedComment/${iduser}/${comment.id}`);
                         const dislikecommentCountResponse = await axios.get(`http://bookmate00-001-site1.atempurl.com/api/DisLikeComment/GetDisLikeCommentCountByCommentId/${comment.id}`);
-    
-                        // console.log("DisLike")
-                        // console.log(isDisLikedCommentResponse)
-                        // console.log(dislikecommentCountResponse)
-
 
                         // Dodajte likeCount u objekat komentara
                         const updatedComment = {
@@ -227,7 +222,7 @@ export default function Comment({ postId, iduser, setcommentCount }) {
                 <TextInput
                     style={[styles.input, {textAlignVertical: 'top',height:100}]}
                     onChangeText={(text) => setText(text)}
-                    placeholder="Dodaj komentar..."
+                    placeholder="Add a comment..."
                     placeholderTextColor='#aaa'
                     multiline // Postavka za više redova
                 />
@@ -237,7 +232,7 @@ export default function Comment({ postId, iduser, setcommentCount }) {
             </View>
 
             {data.length !== 0 ? (
-                <Text style={styles.commentHeading}>Komentari</Text>
+                <Text style={styles.commentHeading}>Comments</Text>
             ):null}  
 
             {data.map((comment) => (

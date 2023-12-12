@@ -2,6 +2,7 @@
   "expo": {
     "name": "BookMate",
     "slug": "BookMate",
+    "description": "This is an BookMate app.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,6 +32,12 @@
       "eas": {
         "projectId": "cfeff4d4-21a8-44c3-adc6-d742612beae8"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cfeff4d4-21a8-44c3-adc6-d742612beae8"
     }
   }
 }

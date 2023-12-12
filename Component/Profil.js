@@ -36,16 +36,14 @@ const Profil = ({ navigation }) => {
 
     const fetchData = async () => {
         const Id = await AsyncStorage.getItem('Id');
-        const nickname = await AsyncStorage.getItem('NickName');
 
         setId(Id);
-        setNickname(nickname);
-
 
         axios.get(`http://bookmate00-001-site1.atempurl.com/api/User/${Id}`)
             .then((response) => {
                 setFirstName(response.data.firstName);
                 setLastName(response.data.lastName)
+                setNickname(response.data.nickName)
                 setImage(response.data.image);
 
                 //postovi
@@ -126,17 +124,17 @@ const Profil = ({ navigation }) => {
 
                             <MenuOptions>
                                 <MenuOption onSelect={()=> navigation.replace('EditProfile')}>
-                                    <Text>Izmeni profil</Text>
+                                    <Text>Change profile</Text>
                                 </MenuOption>
                                 <MenuOption onSelect={removeNickname}>
-                                    <Text>Odjavi se</Text>
+                                    <Text>Logout</Text>
                                 </MenuOption>
                             </MenuOptions>
                         </Menu>
                     }
                     containerStyle={{ backgroundColor: '#FBFBFB' }}
                 />
-                <ScrollView
+                 <ScrollView
                     style={styles.container}
                     refreshControl={
                         <RefreshControl
@@ -145,7 +143,6 @@ const Profil = ({ navigation }) => {
                         />
                     }
                 >
-
                     <View style={styles.hederView}>
                         {image ? (<View>
                             <Image
@@ -196,7 +193,6 @@ const Profil = ({ navigation }) => {
                     <View style={styles.body}>
                         <View style={styles.info}>
                             <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
-                            <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
                         </View>
                     </View>
 

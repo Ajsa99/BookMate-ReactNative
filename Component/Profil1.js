@@ -115,9 +115,6 @@ const Profil1 = ({ navigation, route }) => {
         axios.post('http://bookmate00-001-site1.atempurl.com/api/Followover/AddFollowover', data)
             .then((response) => {
 
-                // Pozovi obaveštenje o praćenju
-                // await hubConnection.invoke("SendFollowNotification", Id, "ImePratitelja");
-
                 console.log(response.data);
                 setFollowers(true);
                 setFollowersCount((prev) => prev + 1);
@@ -212,7 +209,6 @@ const Profil1 = ({ navigation, route }) => {
                         <View style={styles.body}>
                             <View style={styles.info}>
                                 <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
-                                <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
                             </View>
 
                             {followers == false ? (
@@ -222,7 +218,7 @@ const Profil1 = ({ navigation, route }) => {
                                 >
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <MaterialCommunityIcons name="star-outline" color="white" size={22} />
-                                        <Text style={{ color: 'white', fontSize: 15, fontWeight:'bold' }}>Zaprati</Text>
+                                        <Text style={{ color: 'white', fontSize: 15, fontWeight:'bold' }}>Follow</Text>
                                     </View>
 
                                 </Pressable>
@@ -233,7 +229,7 @@ const Profil1 = ({ navigation, route }) => {
                                 >
                                     <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                                         <MaterialCommunityIcons name="star" color="#EEBE68" size={22} />
-                                        <Text style={{ color: '#EEBE68', fontSize: 15, fontWeight:'bold' }}>Pratim</Text>
+                                        <Text style={{ color: '#EEBE68', fontSize: 15, fontWeight:'bold' }}>Following</Text>
                                     </View>
 
                                 </Pressable>
@@ -244,7 +240,6 @@ const Profil1 = ({ navigation, route }) => {
                         <View style={styles.body1}>
                             <View style={styles.info1}>
                                 <Text style={{ fontSize: 25, color: '#333' }}>{FirstName} {LastName}</Text>
-                                <Text style={{ color: '#9F8F8F' }}>Novi Pazar, Srbija</Text>
                             </View>
                         </View>
                     )}
@@ -374,7 +369,7 @@ const styles = StyleSheet.create({
         padding: 5,
     },
     viewList: {
-        backgroundColor:'100%',
+        width:'100%',
         backgroundColor: '#FBFBFB',
         paddingBottom: 25
     },

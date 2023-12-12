@@ -293,7 +293,7 @@ const Post = ({ navigation, route }) => {
             </View>
 
             <View>
-                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>Preporuke knjige</Text>
+                <Text style={{ fontSize: 25, fontWeight: 'bold' }}>Book suggestions:</Text>
                 <Text style={{ fontSize: 16, marginTop:10 }}>{post.bookTitle}</Text>
                 <Text style={{ fontSize: 15, color:'#656565',marginTop:5 }}>{post.author}</Text>
                 <Text style={{ marginVertical: 20, fontSize: 15, color:'#656565' }}>{post.experience}</Text>

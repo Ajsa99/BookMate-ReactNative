@@ -90,9 +90,8 @@ const ChangeProfile = ({navigation}) => {
   
 
   return (
-    <View>
+    <View style={styles.container}>
         <Header
-            placement="left"
             leftComponent={
 
                 <Ionicons
@@ -104,7 +103,7 @@ const ChangeProfile = ({navigation}) => {
             centerComponent={{ text: 'Edit Profile', style: { color: '#333', fontWeight: 'bold' } }}
             containerStyle={{ backgroundColor: '#fff' }}
         />
-        <View style={styles.container}>
+        <View style={styles.body}>
 
         <InputField
           label={'First Name'}
@@ -180,8 +179,11 @@ const ChangeProfile = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     height:'100%',
+    backgroundColor:'#fff',
+  },
+  body:{
     padding: 20,
-    backgroundColor:'#fff'
+
   },
   label: {
     fontSize: 16,
